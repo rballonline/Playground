@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv='Content-type' content='text/html; charset=utf-8'>
+	<title>Budget</title>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-9">
+				<div class="row">
+					<div class="col-md-3 col-md-offset-1" style="text-align: right">
+						Starting Amount:
+					</div>
+					<div class="col-md-2">
+						<form>
+							<input placeholder="Starting Amount" type="number" data-bind="value: startingAmount" class="form-control" />
+						</form>
+					</div>
+				</div>
+				<h2>Current Period</h2>
+				<!-- ko template: { name: 'transaction-template', foreach: currentPeriod } --><!-- /ko -->
+				<!-- ko template: { name: 'balance-template', foreach: currentPeriodDetails } --><!-- /ko -->
+				<hr />
+				<h2>Next Period</h2>
+				<!-- ko template: { name: 'transaction-template', foreach: nextPeriod } --><!-- /ko -->
+				<!-- ko template: { name: 'balance-template', foreach: nextPeriodDetails } --><!-- /ko -->
+				<hr />
+				<h2>Past 4 weeks</h2>
+				<!-- ko template: { name: 'transaction-template', foreach: afterPeriod } --><!-- /ko -->
+				<!-- ko template: { name: 'balance-template', foreach: afterPeriodDetails } --><!-- /ko -->
+				<div class="row">
+					<form data-bind="submit: addTransaction" role="form" class="form">
+						<div class="form-group col-md-1">
+							<input placeholder="Day" data-bind="value: newDay" class="form-control" />
+						</div>
+						<div class="form-group col-md-3">
+							<input placeholder="For" type="text" data-bind="value: newFor" class="form-control" />
+						</div>
+						<div class="form-group col-md-2">
+							<input placeholder="Amount" type="number" data-bind="value: newAmount" class="form-control" />
+						</div>
+						<input type="submit" value="Add" class="btn btn-primary" />
+					</form>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<textarea data-bind="value: data"></textarea><br />
+				<button class="btn btn-default">Copy</button>
+			</div>
+		</div>
+	</div>
+	<script type="text/html" id="balance-template">
+		<div class="row">
+			<div class="col-md-3 col-md-offset-1" style="text-align: right">Balance</div>
+			<div class="col-md-2" data-bind="text: amount"></div>
+		</div>
+	</script>
+	<script type="text/html" id="transaction-template">
+		<div class="row">
+			<form data-bind="submit: $parent.editTransaction" role="form" class="form">
+				<div class="form-group col-md-1">
+					<input placeholder="Day" data-bind="value: day" class="form-control" />
+				</div>
+				<div class="form-group col-md-3">
+					<input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" />
+				</div>
+				<div class="form-group col-md-2">
+					<input placeholder="Amount" type="number" data-bind="value: amount" class="form-control" />
+				</div>
+				<input type="submit" value="X" class="btn btn-primary" data-bind="click: $parent.removeTransaction" />
+			</form>
+		</div>
+	</script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout-bootstrap/0.2.1/knockout-bootstrap.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+	<script type="text/javascript" src="knockout.js"></script>
+</body>
+</html>
