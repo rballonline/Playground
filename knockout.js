@@ -1,4 +1,30 @@
+ko.bindingHandlers.selectAll = {
+	init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+		$(element).click(function () {
+			element.select();
+		});
+	}
+};
+
 function getRanges() {
+	function getDaysInRange(startMoment, endMoment) {
+		var daysInRange = [];
+		if (startMoment.month() == endMoment.month()) {
+			for (var i = startMoment.date() ; i <= endMoment.date() ; i++) {
+				daysInRange.push(i);
+			}
+		}
+		else {
+			for (var i = startMoment.date() ; i <= moment().daysInMonth() ; i++) {
+				daysInRange.push(i);
+			}
+			for (var i = 1; i <= endMoment.date() ; i++) {
+				daysInRange.push(i);
+			}
+		}
+		return daysInRange;
+	}
+
 	var nextPayDate = moment('3/7/2014');
 	while(nextPayDate < moment()) {
 		nextPayDate = nextPayDate.add('weeks', 2);
@@ -16,30 +42,17 @@ function getRanges() {
 	return { currentRange: currentRange, nextRange: nextRange };
 }
 
-function getDaysInRange(startMoment, endMoment) {
-	var daysInRange = [];
-	if(startMoment.month() == endMoment.month()) {
-		for(var i = startMoment.date(); i <= endMoment.date(); i++) {
-			daysInRange.push(i);
-		}
-	}
-	else {
-		for(var i = startMoment.date(); i <= moment().daysInMonth(); i++) {
-			daysInRange.push(i);
-		}
-		for(var i = 1; i <= endMoment.date(); i++) {
-			daysInRange.push(i);
-		}
-	}
-	return daysInRange;
-}
-
 var vm = function() {
-	var self = this;
+	var self = this, pageLoaded = false;
+
 	self.newDay = ko.observable();
 	self.newFor = ko.observable();
 	self.newAmount = ko.observable();
 	self.startingAmount = ko.observable(1000);
+	self.paycheckAmount = ko.observable();
+	self.dataToLoad = ko.observable();
+	self.shareBoxVisible = ko.observable(false);
+	self.loadBoxVisible = ko.observable(false);
 	
 	self.currentPeriod = ko.observableArray();
 	self.nextPeriod = ko.observableArray();
@@ -60,12 +73,23 @@ var vm = function() {
 	}
 
 	function load() {
-		if (localStorage.getItem('data')) {
-			var transactions = JSON.parse(localStorage.getItem('data'));
-			_.each(transactions, function (t) {
-				addTransaction(t.day, t.forAmount, t.amount);
-			});
+		try {
+			if (localStorage.getItem('data')) {
+				var data = JSON.parse(localStorage.getItem('data'));
+				self.startingAmount(data.startingAmount);
+				self.paycheckAmount(data.paycheckAmount);
+				self.currentPeriod([]);
+				self.nextPeriod([]);
+				self.afterPeriod([]);
+				_.each(data.transactions, function (t) {
+					addTransaction(t.day, t.forAmount, t.amount);
+				});
+			}
 		}
+		catch(e) {
+			localStorage.removeItem('data');
+		}
+		pageLoaded = true;
 	}
 
 	function getTotal(ts) {
@@ -75,17 +99,27 @@ var vm = function() {
 		});
 		return total;
 	}
+
+	self.showShareBox = function () {
+		self.shareBoxVisible(!self.shareBoxVisible());
+		self.loadBoxVisible(false);
+	};
+
+	self.showLoadBox = function () {
+		self.loadBoxVisible(!self.loadBoxVisible());
+		self.shareBoxVisible(false);
+	};
 	
 	self.currentPeriodDetails = ko.computed(function () {
-		return { amount: (parseFloat(self.startingAmount()) - getTotal(self.currentPeriod())).toFixed(2) };
+		return { amount: (parseFloat(self.startingAmount()) - getTotal(self.currentPeriod())).toFixed(2) }; // toFixed returns string
 	});
 
 	self.nextPeriodDetails = ko.computed(function () {
-		return { amount: (self.currentPeriodDetails().amount - getTotal(self.nextPeriod())).toFixed(2) };
+		return { amount: (parseFloat(self.paycheckAmount()) + parseFloat(self.currentPeriodDetails().amount) - getTotal(self.nextPeriod())).toFixed(2) };
 	});
 
 	self.afterPeriodDetails = ko.computed(function () {
-		return { amount: (self.nextPeriodDetails().amount - getTotal(self.afterPeriod())).toFixed(2) };
+		return { amount: (parseFloat(self.paycheckAmount()) + parseFloat(self.nextPeriodDetails().amount) - getTotal(self.afterPeriod())).toFixed(2) };
 	});
 
 	self.data = ko.computed(function () {
@@ -94,18 +128,21 @@ var vm = function() {
 		_.each(self.nextPeriod(), function (t) { transactions.push(t); });
 		_.each(self.afterPeriod(), function (t) { transactions.push(t); });
 
-		var data = { startingAmount: self.startingAmount, transactions: ko.toJSON(transactions) };
-		localStorage.setItem('data', data);
-		return transactions;
+		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions });
+		if (pageLoaded) {
+			localStorage.setItem('data', data); // otherwise update will occur overrided item on load
+		}
+		return data;
 	});
-	
+
+	self.loadData = ko.computed(function () {
+		localStorage.setItem('data', self.dataToLoad());
+		load();
+	});
 	
 	self.addTransaction = function() {
 		var day = parseInt(self.newDay(), 10);
 		addTransaction(day, self.newFor(), self.newAmount());
-	};
-	
-	self.editTransaction = function(transaction) {
 	};
 
 	self.removeTransaction = function (transaction) {

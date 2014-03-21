@@ -6,6 +6,11 @@
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap-theme.min.css" />
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
+	<style>
+		.heading {
+			border-bottom: 1px solid gray;
+		}
+	</style>
 </head>
 <body>
 	<div class="container">
@@ -13,25 +18,31 @@
 			<div class="col-md-9">
 				<div class="row">
 					<div class="col-md-3 col-md-offset-1" style="text-align: right">
-						Starting Amount:
+						Starting Amount
 					</div>
 					<div class="col-md-2">
-						<form>
-							<input placeholder="Starting Amount" type="number" data-bind="value: startingAmount" class="form-control" />
-						</form>
+						<input placeholder="Starting Amount" type="number" data-bind="value: startingAmount, valueUpdate: 'input'" class="form-control" />
 					</div>
 				</div>
-				<h2>Current Period</h2>
-				<!-- ko template: { name: 'transaction-template', foreach: currentPeriod } --><!-- /ko -->
-				<!-- ko template: { name: 'balance-template', foreach: currentPeriodDetails } --><!-- /ko -->
-				<hr />
-				<h2>Next Period</h2>
-				<!-- ko template: { name: 'transaction-template', foreach: nextPeriod } --><!-- /ko -->
-				<!-- ko template: { name: 'balance-template', foreach: nextPeriodDetails } --><!-- /ko -->
-				<hr />
-				<h2>Past 4 weeks</h2>
-				<!-- ko template: { name: 'transaction-template', foreach: afterPeriod } --><!-- /ko -->
-				<!-- ko template: { name: 'balance-template', foreach: afterPeriodDetails } --><!-- /ko -->
+				<div class="row heading">
+					<div class="col-md-3">Current Period</div>
+				</div>
+				<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
+				<!-- ko template: { name: 'balance-template', data: currentPeriodDetails } --><!-- /ko -->
+				<div class="row heading">
+					<div class="col-md-3">Next Period</div>
+					<div class="col-md-1">Income</div>
+					<div class="col-md-2" data-bind="text: paycheckAmount"></div>
+				</div>
+				<!-- ko template: { name: 'transaction-template', data: nextPeriod } --><!-- /ko -->
+				<!-- ko template: { name: 'balance-template', data: nextPeriodDetails } --><!-- /ko -->
+				<div class="row heading">
+					<div class="col-md-3">After 4 weeks</div>
+					<div class="col-md-1">Income</div>
+					<div class="col-md-2" data-bind="text: paycheckAmount"></div>
+				</div>
+				<!-- ko template: { name: 'transaction-template', data: afterPeriod } --><!-- /ko -->
+				<!-- ko template: { name: 'balance-template', data: afterPeriodDetails } --><!-- /ko -->
 				<div class="row">
 					<form data-bind="submit: addTransaction" role="form" class="form">
 						<div class="form-group col-md-1">
@@ -48,9 +59,23 @@
 				</div>
 			</div>
 			<div class="col-md-3">
-				<textarea data-bind="value: data"></textarea><br />
-				<button class="btn btn-default">Copy</button>
-			</div>
+				<form role="form">
+					<div class="form-group">
+						<label for="payCheckAmount">Paycheck Amount</label>
+						<input type="number" class="form-control" id="payCheckAmount" placeholder="Paycheck Amount" data-bind="value: paycheckAmount, valueUpdate: 'input'">
+					</div>
+				</form>
+
+				<div data-bind="visible: shareBoxVisible">
+					<textarea data-bind="value: data, selectAll: true" class="form-control"></textarea>
+					Click text box and CTRL+C to copy
+				</div>
+				<div data-bind="visible: loadBoxVisible">
+					<textarea data-bind="value: dataToLoad, valueUpdate: 'input'" class="form-control" placeholder="Paste data here"></textarea><br />
+					CTRL+V to paste and load the data
+				</div>
+					<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
+				</div>
 		</div>
 	</div>
 	<script type="text/html" id="balance-template">
@@ -60,8 +85,12 @@
 		</div>
 	</script>
 	<script type="text/html" id="transaction-template">
+		<div class="row" data-bind="visible: $data.length < 1">
+			<div class="col=md-12">No transactions in this period</div>
+		</div>
+		<!-- ko foreach: $data -->
 		<div class="row">
-			<form data-bind="submit: $parent.editTransaction" role="form" class="form">
+			<form role="form" class="form">
 				<div class="form-group col-md-1">
 					<input placeholder="Day" data-bind="value: day" class="form-control" />
 				</div>
@@ -69,11 +98,12 @@
 					<input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" />
 				</div>
 				<div class="form-group col-md-2">
-					<input placeholder="Amount" type="number" data-bind="value: amount" class="form-control" />
+					<input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control" />
 				</div>
-				<input type="submit" value="X" class="btn btn-primary" data-bind="click: $parent.removeTransaction" />
+				<input type="submit" value="X" class="btn btn-primary" data-bind="click: $parents[1].removeTransaction" />
 			</form>
 		</div>
+		<!-- /ko -->
 	</script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
