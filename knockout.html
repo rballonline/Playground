@@ -7,9 +7,8 @@
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap-theme.min.css" />
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
 	<style>
-		.heading {
-			border-bottom: 1px solid gray;
-		}
+		.heading { border-bottom: 1px solid gray; margin-bottom: 7px;	}
+		.number { text-align: right; }
 	</style>
 </head>
 <body>
@@ -17,7 +16,7 @@
 		<div class="row">
 			<div class="col-md-9">
 				<div class="row">
-					<div class="col-md-3 col-md-offset-1" style="text-align: right">
+					<div class="col-md-4 col-md-offset-1" style="text-align: right">
 						Starting Amount
 					</div>
 					<div class="col-md-2">
@@ -25,21 +24,21 @@
 					</div>
 				</div>
 				<div class="row heading">
-					<div class="col-md-3">Current Period</div>
+					<div class="col-md-12">Current Period (<span data-bind="text: priorPayDate"></span> - <span data-bind="text: nextPayDate"></span>)</div>
 				</div>
 				<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
 				<!-- ko template: { name: 'balance-template', data: currentPeriodDetails } --><!-- /ko -->
 				<div class="row heading">
-					<div class="col-md-3">Next Period</div>
-					<div class="col-md-1">Income</div>
-					<div class="col-md-2" data-bind="text: paycheckAmount"></div>
+					<div class="col-md-4">Next Period (<span data-bind="text: nextPayDate"></span> - <span data-bind="text: afterPayDate"></span>)</div>
+					<div class="col-md-1 number">Income</div>
+					<div class="col-md-2 number" data-bind="text: paycheckAmount"></div>
 				</div>
 				<!-- ko template: { name: 'transaction-template', data: nextPeriod } --><!-- /ko -->
 				<!-- ko template: { name: 'balance-template', data: nextPeriodDetails } --><!-- /ko -->
 				<div class="row heading">
-					<div class="col-md-3">After 4 weeks</div>
-					<div class="col-md-1">Income</div>
-					<div class="col-md-2" data-bind="text: paycheckAmount"></div>
+					<div class="col-md-4">After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</div>
+					<div class="col-md-1 number">Income</div>
+					<div class="col-md-2 number" data-bind="text: paycheckAmount"></div>
 				</div>
 				<!-- ko template: { name: 'transaction-template', data: afterPeriod } --><!-- /ko -->
 				<!-- ko template: { name: 'balance-template', data: afterPeriodDetails } --><!-- /ko -->
@@ -48,11 +47,11 @@
 						<div class="form-group col-md-1">
 							<input placeholder="Day" data-bind="value: newDay" class="form-control" />
 						</div>
-						<div class="form-group col-md-3">
+						<div class="form-group col-md-4">
 							<input placeholder="For" type="text" data-bind="value: newFor" class="form-control" />
 						</div>
 						<div class="form-group col-md-2">
-							<input placeholder="Amount" type="number" data-bind="value: newAmount" class="form-control" />
+							<input placeholder="Amount" type="number" data-bind="value: newAmount" class="form-control number" />
 						</div>
 						<input type="submit" value="Add" class="btn btn-primary" />
 					</form>
@@ -80,8 +79,8 @@
 	</div>
 	<script type="text/html" id="balance-template">
 		<div class="row">
-			<div class="col-md-3 col-md-offset-1" style="text-align: right">Balance</div>
-			<div class="col-md-2" data-bind="text: amount"></div>
+			<div class="col-md-4 col-md-offset-1 number">Balance</div>
+			<div class="col-md-2 number" data-bind="text: amount"></div>
 		</div>
 	</script>
 	<script type="text/html" id="transaction-template">
@@ -92,13 +91,13 @@
 		<div class="row">
 			<form role="form" class="form">
 				<div class="form-group col-md-1">
-					<input placeholder="Day" data-bind="value: day" class="form-control" />
+					<input placeholder="Day" data-bind="value: day, selectAll: true" class="form-control" />
 				</div>
-				<div class="form-group col-md-3">
-					<input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" />
+				<div class="form-group col-md-4">
+					<input placeholder="For" type="text" data-bind="value: forAmount, selectAll: true" class="form-control" />
 				</div>
 				<div class="form-group col-md-2">
-					<input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control" />
+					<input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" />
 				</div>
 				<input type="submit" value="X" class="btn btn-primary" data-bind="click: $parents[1].removeTransaction" />
 			</form>

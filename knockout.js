@@ -6,7 +6,26 @@ ko.bindingHandlers.selectAll = {
 	}
 };
 
-function getRanges() {
+var vm = function() {
+	var self = this, pageLoaded = false;
+
+	self.priorPayDate = ko.observable();
+	self.nextPayDate = ko.observable();
+	self.afterPayDate = ko.observable();
+
+	self.newDay = ko.observable();
+	self.newFor = ko.observable();
+	self.newAmount = ko.observable();
+	self.startingAmount = ko.observable(1000);
+	self.paycheckAmount = ko.observable();
+	self.dataToLoad = ko.observable();
+	self.shareBoxVisible = ko.observable(false);
+	self.loadBoxVisible = ko.observable(false);
+	
+	self.currentPeriod = ko.observableArray();
+	self.nextPeriod = ko.observableArray();
+	self.afterPeriod = ko.observableArray();
+
 	function getDaysInRange(startMoment, endMoment) {
 		var daysInRange = [];
 		if (startMoment.month() == endMoment.month()) {
@@ -26,45 +45,56 @@ function getRanges() {
 	}
 
 	var nextPayDate = moment('3/7/2014');
-	while(nextPayDate < moment()) {
+	while (nextPayDate < moment()) {
 		nextPayDate = nextPayDate.add('weeks', 2);
 	}
-	
+
 	nextPayDate.subtract('weeks', 2);
 	var priorPayDate = moment(nextPayDate);
 	nextPayDate.add('weeks', 4);
 	var afterPayDate = moment(nextPayDate);
 	nextPayDate.subtract('weeks', 2);
-	
+
 	var currentRange = getDaysInRange(priorPayDate, nextPayDate),
 		nextRange = getDaysInRange(nextPayDate, afterPayDate);
-	
-	return { currentRange: currentRange, nextRange: nextRange };
-}
 
-var vm = function() {
-	var self = this, pageLoaded = false;
-
-	self.newDay = ko.observable();
-	self.newFor = ko.observable();
-	self.newAmount = ko.observable();
-	self.startingAmount = ko.observable(1000);
-	self.paycheckAmount = ko.observable();
-	self.dataToLoad = ko.observable();
-	self.shareBoxVisible = ko.observable(false);
-	self.loadBoxVisible = ko.observable(false);
+	self.priorPayDate(priorPayDate.format('M/D/YYYY'));
+	self.nextPayDate(nextPayDate.format('M/D/YYYY'));
+	self.afterPayDate(afterPayDate.format('M/D/YYYY'));
 	
-	self.currentPeriod = ko.observableArray();
-	self.nextPeriod = ko.observableArray();
-	self.afterPeriod = ko.observableArray();
-	
-	var r = getRanges();
 	function addTransaction(day, forAmount, amount) {
 		var transaction = { day: ko.observable(day), forAmount: ko.observable(forAmount), amount: ko.observable(amount) };
-		if (r.currentRange.indexOf(day) > -1) {
+		var oldValue;
+		transaction.day.subscribe(function (_old) {
+			oldValue = parseInt(_old, 10);
+		}, transaction, 'beforeChange');
+		transaction.day.subscribe(function (newValue) {
+			newValue = parseInt(newValue, 10);
+			if (oldValue !== newValue) {
+				if (currentRange.indexOf(oldValue) > -1) {
+					self.currentPeriod.remove(transaction);
+				}
+				else if (nextRange.indexOf(oldValue) > -1) {
+					self.nextPeriod.remove(transaction);
+				}
+				else {
+					self.afterPeriod.remove(transaction);
+				}
+				if (currentRange.indexOf(newValue) > -1) {
+					self.currentPeriod.push(transaction);
+				}
+				else if (nextRange.indexOf(newValue) > -1) {
+					self.nextPeriod.push(transaction);
+				}
+				else {
+					self.afterPeriod.push(transaction);
+				}
+			}
+		});
+		if (currentRange.indexOf(day) > -1) {
 			self.currentPeriod.push(transaction);
 		}
-		else if (r.nextRange.indexOf(day) > -1) {
+		else if (nextRange.indexOf(day) > -1) {
 			self.nextPeriod.push(transaction);
 		}
 		else {
@@ -136,13 +166,18 @@ var vm = function() {
 	});
 
 	self.loadData = ko.computed(function () {
-		localStorage.setItem('data', self.dataToLoad());
-		load();
+		if (self.dataToLoad()) {
+			localStorage.setItem('data', self.dataToLoad());
+			load();
+		}
 	});
 	
 	self.addTransaction = function() {
 		var day = parseInt(self.newDay(), 10);
 		addTransaction(day, self.newFor(), self.newAmount());
+		self.newDay();
+		self.newAmount('');
+		self.newFor('')
 	};
 
 	self.removeTransaction = function (transaction) {
