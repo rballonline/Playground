@@ -49,14 +49,14 @@ var vm = function() {
 		nextPayDate = nextPayDate.add('weeks', 2);
 	}
 
-	nextPayDate.subtract('weeks', 2);
-	var priorPayDate = moment(nextPayDate);
-	nextPayDate.add('weeks', 4);
-	var afterPayDate = moment(nextPayDate);
-	nextPayDate.subtract('weeks', 2);
+	var priorPayDate = moment(nextPayDate.subtract('weeks', 2)),
+		afterPayDate = moment(nextPayDate.add('weeks', 4)),
+		afterThatPayDate = moment(nextPayDate.add('weeks', 2));
+	nextPayDate.subtract('weeks', 4);
 
 	var currentRange = getDaysInRange(priorPayDate, nextPayDate),
-		nextRange = getDaysInRange(nextPayDate, afterPayDate);
+		nextRange = getDaysInRange(nextPayDate, afterPayDate),
+		afterRange = getDaysInRange(afterPayDate, afterThatPayDate);
 
 	self.priorPayDate(priorPayDate.format('M/D/YYYY'));
 	self.nextPayDate(nextPayDate.format('M/D/YYYY'));
@@ -68,6 +68,7 @@ var vm = function() {
 		transaction.day.subscribe(function (_old) {
 			oldValue = parseInt(_old, 10);
 		}, transaction, 'beforeChange');
+
 		transaction.day.subscribe(function (newValue) {
 			newValue = parseInt(newValue, 10);
 			if (oldValue !== newValue) {
@@ -89,8 +90,21 @@ var vm = function() {
 				else {
 					self.afterPeriod.push(transaction);
 				}
+
+				self.currentPeriod.sort(function (left, right) {
+					return currentRange.indexOf(left.day()) > currentRange.indexOf(right.day()) ? 1 : -1;
+				});
+
+				self.nextPeriod.sort(function (left, right) {
+					return nextRange.indexOf(left.day()) > nextRange.indexOf(right.day()) ? 1 : -1;
+				});
+
+				self.afterPeriod.sort(function (left, right) {
+					return afterRange.indexOf(left.day()) > afterRange.indexOf(right.day()) ? 1 : -1;
+				});
 			}
 		});
+
 		if (currentRange.indexOf(day) > -1) {
 			self.currentPeriod.push(transaction);
 		}
@@ -100,6 +114,18 @@ var vm = function() {
 		else {
 			self.afterPeriod.push(transaction);
 		}
+
+		self.currentPeriod.sort(function (left, right) {
+			return currentRange.indexOf(left.day()) > currentRange.indexOf(right.day()) ? 1 : -1;
+		});
+
+		self.nextPeriod.sort(function (left, right) {
+			return nextRange.indexOf(left.day()) > nextRange.indexOf(right.day()) ? 1 : -1;
+		});
+
+		self.afterPeriod.sort(function (left, right) {
+			return afterRange.indexOf(left.day()) > afterRange.indexOf(right.day()) ? 1 : -1;
+		});
 	}
 
 	function load() {
