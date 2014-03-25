@@ -25,6 +25,7 @@ var vm = function() {
 	self.currentPeriod = ko.observableArray();
 	self.nextPeriod = ko.observableArray();
 	self.afterPeriod = ko.observableArray();
+	self.paidTransactions = ko.observableArray();
 
 	function getDaysInRange(startMoment, endMoment) {
 		var daysInRange = [];
@@ -61,9 +62,35 @@ var vm = function() {
 	self.priorPayDate(priorPayDate.format('M/D/YYYY'));
 	self.nextPayDate(nextPayDate.format('M/D/YYYY'));
 	self.afterPayDate(afterPayDate.format('M/D/YYYY'));
+
+	function sortPeriods() {
+		self.currentPeriod.sort(function (left, right) {
+			return currentRange.indexOf(left.day()) > currentRange.indexOf(right.day()) ? 1 : -1;
+		});
+
+		self.nextPeriod.sort(function (left, right) {
+			return nextRange.indexOf(left.day()) > nextRange.indexOf(right.day()) ? 1 : -1;
+		});
+
+		self.afterPeriod.sort(function (left, right) {
+			return afterRange.indexOf(left.day()) > afterRange.indexOf(right.day()) ? 1 : -1;
+		});
+	}
+
+	function addTxTo(transaction, day) {
+		if (currentRange.indexOf(day) > -1) {
+			self.currentPeriod.push(transaction);
+		}
+		else if (nextRange.indexOf(day) > -1) {
+			self.nextPeriod.push(transaction);
+		}
+		else {
+			self.afterPeriod.push(transaction);
+		}
+	}
 	
-	function addTransaction(day, forAmount, amount) {
-		var transaction = { day: ko.observable(day), forAmount: ko.observable(forAmount), amount: ko.observable(amount) };
+	function addTransaction(tx) {
+		var transaction = { day: ko.observable(tx.day), forAmount: ko.observable(tx.forAmount), amount: ko.observable(tx.amount) };
 		var oldValue;
 		transaction.day.subscribe(function (_old) {
 			oldValue = parseInt(_old, 10);
@@ -81,51 +108,13 @@ var vm = function() {
 				else {
 					self.afterPeriod.remove(transaction);
 				}
-				if (currentRange.indexOf(newValue) > -1) {
-					self.currentPeriod.push(transaction);
-				}
-				else if (nextRange.indexOf(newValue) > -1) {
-					self.nextPeriod.push(transaction);
-				}
-				else {
-					self.afterPeriod.push(transaction);
-				}
-
-				self.currentPeriod.sort(function (left, right) {
-					return currentRange.indexOf(left.day()) > currentRange.indexOf(right.day()) ? 1 : -1;
-				});
-
-				self.nextPeriod.sort(function (left, right) {
-					return nextRange.indexOf(left.day()) > nextRange.indexOf(right.day()) ? 1 : -1;
-				});
-
-				self.afterPeriod.sort(function (left, right) {
-					return afterRange.indexOf(left.day()) > afterRange.indexOf(right.day()) ? 1 : -1;
-				});
+				addTxTo(transaction, newValue);
+				sortPeriods();
 			}
 		});
 
-		if (currentRange.indexOf(day) > -1) {
-			self.currentPeriod.push(transaction);
-		}
-		else if (nextRange.indexOf(day) > -1) {
-			self.nextPeriod.push(transaction);
-		}
-		else {
-			self.afterPeriod.push(transaction);
-		}
-
-		self.currentPeriod.sort(function (left, right) {
-			return currentRange.indexOf(left.day()) > currentRange.indexOf(right.day()) ? 1 : -1;
-		});
-
-		self.nextPeriod.sort(function (left, right) {
-			return nextRange.indexOf(left.day()) > nextRange.indexOf(right.day()) ? 1 : -1;
-		});
-
-		self.afterPeriod.sort(function (left, right) {
-			return afterRange.indexOf(left.day()) > afterRange.indexOf(right.day()) ? 1 : -1;
-		});
+		addTxTo(transaction, tx.day);
+		sortPeriods();
 	}
 
 	function load() {
@@ -138,8 +127,9 @@ var vm = function() {
 				self.nextPeriod([]);
 				self.afterPeriod([]);
 				_.each(data.transactions, function (t) {
-					addTransaction(t.day, t.forAmount, t.amount);
+					addTransaction(t);
 				});
+				self.paidTransactions(data.paidTransactions);
 			}
 		}
 		catch(e) {
@@ -184,7 +174,7 @@ var vm = function() {
 		_.each(self.nextPeriod(), function (t) { transactions.push(t); });
 		_.each(self.afterPeriod(), function (t) { transactions.push(t); });
 
-		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions });
+		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions, paidTransactions: self.paidTransactions() });
 		if (pageLoaded) {
 			localStorage.setItem('data', data); // otherwise update will occur overrided item on load
 		}
@@ -200,16 +190,26 @@ var vm = function() {
 	
 	self.addTransaction = function() {
 		var day = parseInt(self.newDay(), 10);
-		addTransaction(day, self.newFor(), self.newAmount());
+		addTransaction({ day: day, forAmount: self.newFor(), amount: parseFloat(self.newAmount()).toFixed(2) });
 		self.newDay();
 		self.newAmount('');
-		self.newFor('')
+		self.newFor('');
 	};
 
 	self.removeTransaction = function (transaction) {
-		self.currentPeriod.remove(function(item) { return item.day === transaction.day });
-		self.nextPeriod.remove(function (item) { return item.day === transaction.day });
-		self.afterPeriod.remove(function (item) { return item.day === transaction.day });
+		self.paidTransactions.remove(transaction);
+	};
+
+	self.reAddTransaction = function (transaction) {
+		self.paidTransactions.remove(transaction);
+		addTransaction(ko.toJS(transaction));
+	}
+
+	self.markTransactionPaid = function (transaction) {
+		self.currentPeriod.remove(transaction);
+		self.nextPeriod.remove(transaction);
+		self.afterPeriod.remove(transaction);
+		self.paidTransactions.push(transaction);
 	};
 
 	load();

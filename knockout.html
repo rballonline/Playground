@@ -73,8 +73,17 @@
 					<textarea data-bind="value: dataToLoad, valueUpdate: 'input'" class="form-control" placeholder="Paste data here"></textarea><br />
 					CTRL+V to paste and load the data
 				</div>
-					<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
+				<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
+
+				<h5>Paid Transactions</h5>
+				<!-- ko foreach: paidTransactions -->
+				<div class="row">					
+					<div class="col-xs-3"><button class="btn btn-xs btn-success" data-bind="click: $parent.reAddTransaction">+</button> <!-- ko text: day --><!-- /ko --></div>
+					<div class="col-xs-5" data-bind="text: forAmount"></div>
+					<div class="col-xs-4"><!-- ko text: amount --><!-- /ko --> <button class="btn btn-xs btn-danger" data-bind="click: $parent.removeTransaction">X</button></div>
 				</div>
+				<!-- /ko -->
+			</div>
 		</div>
 	</div>
 	<script type="text/html" id="balance-template">
@@ -85,7 +94,7 @@
 	</script>
 	<script type="text/html" id="transaction-template">
 		<div class="row" data-bind="visible: $data.length < 1">
-			<div class="col=md-12">No transactions in this period</div>
+			<div class="col-md-12">No transactions in this period</div>
 		</div>
 		<!-- ko foreach: $data -->
 		<div class="row">
@@ -99,14 +108,13 @@
 				<div class="form-group col-md-2">
 					<input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" />
 				</div>
-				<input type="submit" value="X" class="btn btn-primary" data-bind="click: $parents[1].removeTransaction" />
+				<input type="submit" value="PAID" class="btn btn-primary" data-bind="click: $parents[1].markTransactionPaid" />
 			</form>
 		</div>
 		<!-- /ko -->
 	</script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/knockout-bootstrap/0.2.1/knockout-bootstrap.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
