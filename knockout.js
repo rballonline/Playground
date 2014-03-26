@@ -25,7 +25,10 @@ var vm = function() {
 	self.currentPeriod = ko.observableArray();
 	self.nextPeriod = ko.observableArray();
 	self.afterPeriod = ko.observableArray();
-	self.paidTransactions = ko.observableArray();
+	self.offTheBooks = ko.observableArray();
+	self.showOffTheBooks = ko.computed(function () {
+		return self.offTheBooks().length > 0;
+	});
 
 	function getDaysInRange(startMoment, endMoment) {
 		var daysInRange = [];
@@ -129,7 +132,9 @@ var vm = function() {
 				_.each(data.transactions, function (t) {
 					addTransaction(t);
 				});
-				self.paidTransactions(data.paidTransactions);
+				_.each(data.offTheBooks, function (t) {
+					self.offTheBooks.push(t);
+				});
 			}
 		}
 		catch(e) {
@@ -157,15 +162,23 @@ var vm = function() {
 	};
 	
 	self.currentPeriodDetails = ko.computed(function () {
-		return { amount: (parseFloat(self.startingAmount()) - getTotal(self.currentPeriod())).toFixed(2) }; // toFixed returns string
+		return { amount: parseFloat(self.startingAmount()) - getTotal(self.currentPeriod()) };
 	});
 
 	self.nextPeriodDetails = ko.computed(function () {
-		return { amount: (parseFloat(self.paycheckAmount()) + parseFloat(self.currentPeriodDetails().amount) - getTotal(self.nextPeriod())).toFixed(2) };
+		return { amount: parseFloat(self.paycheckAmount()) + self.currentPeriodDetails().amount - getTotal(self.nextPeriod()) };
+	});
+
+	self.nextPeriodStarting = ko.computed(function () {
+		return (parseFloat(self.paycheckAmount()) + self.currentPeriodDetails().amount).toFixed(2);
 	});
 
 	self.afterPeriodDetails = ko.computed(function () {
-		return { amount: (parseFloat(self.paycheckAmount()) + parseFloat(self.nextPeriodDetails().amount) - getTotal(self.afterPeriod())).toFixed(2) };
+		return { amount: parseFloat(self.paycheckAmount()) + self.nextPeriodDetails().amount - getTotal(self.afterPeriod()) };
+	});
+
+	self.afterPeriodStarting = ko.computed(function () {
+		return (parseFloat(self.paycheckAmount()) + self.nextPeriodDetails().amount).toFixed(2);
 	});
 
 	self.data = ko.computed(function () {
@@ -174,7 +187,7 @@ var vm = function() {
 		_.each(self.nextPeriod(), function (t) { transactions.push(t); });
 		_.each(self.afterPeriod(), function (t) { transactions.push(t); });
 
-		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions, paidTransactions: self.paidTransactions() });
+		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions, offTheBooks: self.offTheBooks() });
 		if (pageLoaded) {
 			localStorage.setItem('data', data); // otherwise update will occur overrided item on load
 		}
@@ -190,18 +203,18 @@ var vm = function() {
 	
 	self.addTransaction = function() {
 		var day = parseInt(self.newDay(), 10);
-		addTransaction({ day: day, forAmount: self.newFor(), amount: parseFloat(self.newAmount()).toFixed(2) });
+		addTransaction({ day: day, forAmount: self.newFor(), amount: self.newAmount() });
 		self.newDay();
 		self.newAmount('');
 		self.newFor('');
 	};
 
 	self.removeTransaction = function (transaction) {
-		self.paidTransactions.remove(transaction);
+		self.offTheBooks.remove(transaction);
 	};
 
 	self.reAddTransaction = function (transaction) {
-		self.paidTransactions.remove(transaction);
+		self.offTheBooks.remove(transaction);
 		addTransaction(ko.toJS(transaction));
 	}
 
@@ -209,7 +222,7 @@ var vm = function() {
 		self.currentPeriod.remove(transaction);
 		self.nextPeriod.remove(transaction);
 		self.afterPeriod.remove(transaction);
-		self.paidTransactions.push(transaction);
+		self.offTheBooks.push(transaction);
 	};
 
 	load();
