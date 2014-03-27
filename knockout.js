@@ -21,11 +21,16 @@ var vm = function() {
 	self.dataToLoad = ko.observable();
 	self.shareBoxVisible = ko.observable(false);
 	self.loadBoxVisible = ko.observable(false);
+
+	self.newGoalFor = ko.observable();
+	self.newGoalAmount = ko.observable();
+	self.newGoalTransactionAmount = ko.observable();
 	
 	self.currentPeriod = ko.observableArray();
 	self.nextPeriod = ko.observableArray();
 	self.afterPeriod = ko.observableArray();
 	self.offTheBooks = ko.observableArray();
+	self.goals = ko.observableArray();
 	self.showOffTheBooks = ko.computed(function () {
 		return self.offTheBooks().length > 0;
 	});
@@ -135,6 +140,9 @@ var vm = function() {
 				_.each(data.offTheBooks, function (t) {
 					self.offTheBooks.push(t);
 				});
+				_.each(data.goals, function (g) {
+					self.goals.push(g);
+				});
 			}
 		}
 		catch(e) {
@@ -200,6 +208,14 @@ var vm = function() {
 			load();
 		}
 	});
+
+	self.addGoalTransaction = function (goal) {
+		goal.transactions.push({ amount: ko.observable(self.newGoalTransactionAmount()) });
+	};
+
+	self.addGoal = function () {
+		self.goals.push({ forAmount: self.newGoalFor(), amount: parseFloat(self.newGoalAmount()), transactions: ko.observableArray(), total: ko.computed(function () { return getTotal(this.transactions) }) });
+	};
 	
 	self.addTransaction = function() {
 		var day = parseInt(self.newDay(), 10);
