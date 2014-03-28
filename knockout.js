@@ -261,6 +261,10 @@ var vm = function() {
 	self.addGoal = function () {
 		addGoal({ forAmount: self.newGoalFor(), amount: self.newGoalAmount() });
 	};
+
+	self.removeGoal = function () {
+		self.goals.remove(this);
+	};
 	
 	self.addTransaction = function() {
 		var day = parseInt(self.newDay(), 10);
