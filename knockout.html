@@ -34,23 +34,23 @@
 							<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
 							<!-- ko foreach: goals -->
 							<tr class="warning">
-								<td class="goal">GOAL</td>
-								<td data-bind="text: forAmount, valueUpdate: 'input'"></td>
-								<td data-bind="text: amount.toFixed(2), valueUpdate: 'input'" class="number"></td>
-								<td></td>
+								<td class="goal">GOAL <button class="btn btn-danger" data-bind="click: $parent.removeGoal">X</button></td>
+								<td><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
+								<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" /></td>
+								<td class="number">Actual: <span data-bind="text: total().toFixed(2)"></span></td>
 							</tr>
 							<!-- ko foreach: transactions -->
 							<tr>
 								<td></td>
 								<td data-bind="text: dateOf"></td>
 								<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
-								<td><button class="btn btn-danger btn-block">REMOVE</button></td>
+								<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeGoalTransaction.bind({ goal: $parent, transaction: $data})">REMOVE</button></td>
 							</tr>
 							<!-- /ko -->
 							<tr>
 								<td colspan="2"></td>
-								<td><input type="number" data-bind="value: $parent.newGoalTransactionAmount, valueUpdate: 'input'" class="form-control number" /></td>
-								<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addGoalTransaction">ADD</button></td>
+								<td><input type="number" data-bind="value: newExpense, valueUpdate: 'input'" class="form-control number" /></td>
+								<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addGoalTransaction">ADD EXPENSE</button></td>
 							</tr>
 							<!-- /ko -->
 							<tr>

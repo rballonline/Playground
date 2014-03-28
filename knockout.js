@@ -141,7 +141,10 @@ var vm = function() {
 					self.offTheBooks.push(t);
 				});
 				_.each(data.goals, function (g) {
-					self.goals.push(g);
+					goal = addGoal(g);
+					_.each(g.transactions, function (tx) {
+						addGoalTransaction(goal, tx);
+					});
 				});
 			}
 		}
@@ -170,7 +173,7 @@ var vm = function() {
 	};
 	
 	self.currentPeriodDetails = ko.computed(function () {
-		return { amount: parseFloat(self.startingAmount()) - getTotal(self.currentPeriod()) };
+		return { amount: parseFloat(self.startingAmount()) - getTotal(self.currentPeriod()) - getTotal(self.goals()) };
 	});
 
 	self.nextPeriodDetails = ko.computed(function () {
@@ -194,8 +197,16 @@ var vm = function() {
 		_.each(self.currentPeriod(), function (t) { transactions.push(t); });
 		_.each(self.nextPeriod(), function (t) { transactions.push(t); });
 		_.each(self.afterPeriod(), function (t) { transactions.push(t); });
+		var goals = [];
+		_.each(self.goals(), function (g) {
+			var transactions = [];
+			_.each(g.transactions(), function (tx) {
+				transactions.push({ dateOf: tx.dateOf, amount: tx.amount });
+			});
+			goals.push({ forAmount: g.forAmount, amount: g.amount, transactions: transactions });
+		});
 
-		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions, offTheBooks: self.offTheBooks() });
+		var data = ko.toJSON({ startingAmount: self.startingAmount, paycheckAmount: self.paycheckAmount, transactions: transactions, offTheBooks: self.offTheBooks(), goals: goals });
 		if (pageLoaded) {
 			localStorage.setItem('data', data); // otherwise update will occur overrided item on load
 		}
@@ -209,12 +220,46 @@ var vm = function() {
 		}
 	});
 
+	function checkGoalTotal(goal) {
+		if (goal.total() > goal.amount()) {
+			goal.amount(goal.total()); // right now just increase the goal
+		}
+	}
+
+	function addGoalTransaction(goal, tx) {
+		var amount = ko.observable(parseFloat(tx.amount));
+		goal.transactions.push({ dateOf: tx.dateOf, amount: amount });
+		amount.subscribe(function (newValue) {
+			checkGoalTotal(goal);
+		});
+	}
+
 	self.addGoalTransaction = function (goal) {
-		goal.transactions.push({ amount: ko.observable(self.newGoalTransactionAmount()) });
+		addGoalTransaction(goal, { dateOf: moment().format('M/D/YYYY'), amount: goal.newExpense() });
+		checkGoalTotal(goal);
+		goal.newExpense('');
 	};
 
+	self.removeGoalTransaction = function () {
+		this.goal.transactions.remove(this.transaction);
+	};
+
+	function addGoal(goal) {
+		var g = {
+			forAmount: ko.observable(goal.forAmount),
+			amount: ko.observable(parseFloat(goal.amount)),
+			transactions: ko.observableArray(),
+			newExpense: ko.observable()
+		};
+		g.total = ko.computed(function () {
+			return getTotal(g.transactions());
+		});
+		self.goals.push(g);
+		return g;
+	}
+	
 	self.addGoal = function () {
-		self.goals.push({ forAmount: self.newGoalFor(), amount: parseFloat(self.newGoalAmount()), transactions: ko.observableArray(), total: ko.computed(function () { return getTotal(this.transactions) }) });
+		addGoal({ forAmount: self.newGoalFor(), amount: self.newGoalAmount() });
 	};
 	
 	self.addTransaction = function() {
