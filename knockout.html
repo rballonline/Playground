@@ -20,11 +20,22 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<div class="col-md-10">
+			<div class="col-md-12">
+
+				<div data-bind="visible: shareBoxVisible">
+					<textarea data-bind="value: data, selectAll: true" class="form-control" rows="6"></textarea>
+					Click text box and CTRL+C to copy
+				</div>
+				<div data-bind="visible: loadBoxVisible">
+					<textarea data-bind="value: dataToLoad, valueUpdate: 'input'" class="form-control" placeholder="Paste data here" rows="6"></textarea><br />
+					CTRL+V to paste and load the data
+				</div>
+				<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
+
 				<h4>Current Period (<span data-bind="text: priorPayDate"></span> - <span data-bind="text: nextPayDate"></span>)</h4>
 				<div class="table-responsive">
 					<table class="table">
-						<thead><tr><th class="col-xs-1">Day</th><th class="col-xs-7">For</th><th class="col-xs-2 number">Amount</th><th class="col-xs-2"></th></tr></thead>
+						<!-- ko template: { name: 'table-header' } --><!-- /ko -->
 						<tbody>
 							<tr>
 								<td colspan="2" class="number">Starting Amount</td>
@@ -34,30 +45,38 @@
 							<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
 							<!-- ko foreach: goals -->
 							<tr class="warning">
-								<td class="goal">GOAL <button class="btn btn-danger" data-bind="click: $parent.removeGoal">X</button></td>
-								<td><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
+								<td colspan="3" class="number">
+									Amount Left: <span data-bind="text: amountLeft().toFixed(2)"></span>
+									Actual: <span data-bind="text: total().toFixed(2)"></span>
+								</td>
+								<td></td>
+							</tr>
+							<tr class="warning">
+								<td colspan="2"><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
 								<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" /></td>
-								<td class="number">Actual: <span data-bind="text: total().toFixed(2)"></span></td>
+								<td>									
+									<button class="btn btn-danger btn-block" data-bind="click: $parent.removeGoal"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE GOAL</span></button>
+								</td>
 							</tr>
 							<!-- ko foreach: transactions -->
 							<tr>
 								<td></td>
 								<td data-bind="text: dateOf"></td>
 								<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
-								<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeGoalTransaction.bind({ goal: $parent, transaction: $data})">REMOVE</button></td>
+								<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeGoalTransaction.bind({ goal: $parent, transaction: $data})"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE EXPENSE</span></button></td>
 							</tr>
 							<!-- /ko -->
 							<tr>
 								<td colspan="2"></td>
 								<td><input type="number" data-bind="value: newExpense, valueUpdate: 'input'" class="form-control number" /></td>
-								<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addGoalTransaction">ADD EXPENSE</button></td>
+								<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addGoalTransaction"><span class="glyphicon glyphicon-plus"></span> <span class="hidden-sm hidden-xs">ADD EXPENSE</span></button></td>
 							</tr>
 							<!-- /ko -->
 							<tr>
 								<td class="goal">NEW GOAL</td>
 								<td><input type="text" data-bind="value: newGoalFor" class="form-control" /></td>
 								<td><input type="number" data-bind="value: newGoalAmount" class="form-control number" /></td>
-								<td><button class="btn btn-success btn-block" data-bind="click: addGoal">ADD GOAL</button></td>
+								<td><button class="btn btn-success btn-block" data-bind="click: addGoal"><span class="glyphicon glyphicon-usd"></span>	<span class="hidden-sm hidden-xs">ADD GOAL</span></button></td>
 							</tr>
 						</tbody>
 						<tfoot>
@@ -65,6 +84,8 @@
 						</tfoot>
 					</table>
 				</div>
+
+				<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
 				<h4>Next Period (<span data-bind="text: nextPayDate"></span> - <span data-bind="text: afterPayDate"></span>)</h4>
 				<div class="table-responsive">
@@ -87,7 +108,9 @@
 							<!-- ko template: { name: 'balance-template', data: nextPeriodDetails } --><!-- /ko -->
 						</tfoot>
 					</table>
-				</div>
+				</div>				
+				
+				<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
 				<h4>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h4>
 				<div class="table-responsive">
@@ -112,56 +135,50 @@
 					</table>
 				</div>
 
-				<h4>Add Transaction</h4>
-				<form data-bind="submit: addTransaction" role="form" class="form">
-					<div class="table-responsive">
-						<table class="table">
-							<tbody>
-								<tr>
-									<td class="col-xs-1"><input placeholder="Day" data-bind="value: newDay, selectAll: true" class="form-control" /></td>
-									<td class="col-xs-7"><input placeholder="For" type="text" data-bind="value: newFor, selectAll: true" class="form-control" /></td>
-									<td class="col-xs-2"><input placeholder="Amount" type="number" data-bind="value: newAmount, valueUpdate: 'input'" class="form-control number" /></td>
-									<td class="col-xs-2"><input type="submit" value="ADD" class="btn btn-primary btn-block" /></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</form>
+				<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
 				<!-- ko if: showOffTheBooks -->
 				<h4>Off the books</h4>
 				<div class="table-responsive">
 					<table class="table">
 						<thead>
-							<tr><th class="col-xs-1"></th><th class="col-xs-1">Day</th><th class="col-xs-6">For</th><th class="col-xs-2">Amount</th><th class="col-xs-2"></th></tr>
+							<tr><th class="col-md-1 col-xs-2"></th><th class="col-md-1 col-xs-2">Day</th><th class="col-md-6 col-xs-4">For</th><th class="col-md-2 col-xs-2">Amount</th><th class="col-md-2 col-xs-2"></th></tr>
 						</thead>
 						<tbody data-bind="foreach: offTheBooks">
 							<tr>
-								<td><button class="btn btn-success btn-block" data-bind="click: $parent.reAddTransaction">ADD</button></td>
+								<td><button class="btn btn-success btn-block" data-bind="click: $parent.reAddTransaction"><span class="glyphicon glyphicon-plus"></span>	<span class="hidden-sm hidden-xs">ADD</span></button></td>
 								<td><span data-bind="text: day"></span></td>
 								<td data-bind="text: forAmount"></td>
 								<td><span data-bind="text: amount"></span></td>
-								<td><button class="btn btn-danger btn-block" data-bind="click: $parent.removeTransaction">DELETE</button></td>
+								<td><button class="btn btn-danger btn-block" data-bind="click: $parent.removeTransaction"><span class="glyphicon glyphicon-trash"></span>	<span class="hidden-sm hidden-xs">DELETE</span></button></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 				<!-- /ko -->
 			</div>
-			<div class="col-md-2">
-				<div data-bind="visible: shareBoxVisible">
-					<textarea data-bind="value: data, selectAll: true" class="form-control"></textarea>
-					Click text box and CTRL+C to copy
-				</div>
-				<div data-bind="visible: loadBoxVisible">
-					<textarea data-bind="value: dataToLoad, valueUpdate: 'input'" class="form-control" placeholder="Paste data here"></textarea><br />
-					CTRL+V to paste and load the data
-				</div>
-				<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
-
-			</div>
 		</div>
 	</div>
+	<script type="text/html" id="table-header">
+		<thead><tr><th class="col-md-1 col-xs-2">Day</th><th class="col-md-6 col-xs-5">For</th><th class="col-md-2 col-xs-2 number">Amount</th><th class="col-md-2 col-xs-2"></th></tr></thead>
+	</script>
+	<script type="text/html" id="addTx-template">
+		<h4>Add Transaction</h4>
+		<form data-bind="submit: addTransaction" role="form" class="form">
+			<div class="table-responsive">
+				<table class="table">
+					<tbody>
+						<tr>
+							<td class="col-md-1 col-xs-2"><input placeholder="Day" data-bind="value: newDay" class="form-control" maxlength="2" /></td>
+							<td class="col-md-7 col-xs-5"><input placeholder="For" type="text" data-bind="value: newFor" class="form-control" /></td>
+							<td class="col-md-2 col-xs-3"><input placeholder="Amount" type="number" data-bind="value: newAmount, valueUpdate: 'input'" class="form-control number" /></td>
+							<td class="col-md-2 col-xs-2"><button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-plus"></span>	<span class="hidden-sm hidden-xs">ADD</span></button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</form>
+	</script>
 	<script type="text/html" id="balance-template">
 		<tr data-bind="css: { 'success': amount >= 0, 'danger': amount < 0 }">
 			<td colspan="2" class="number">Ending Balance</td>
@@ -175,10 +192,10 @@
 		<!-- /ko -->
 		<!-- ko foreach: $data -->
 		<tr>
-			<td><input placeholder="Day" data-bind="value: day, selectAll: true" class="form-control" /></td>
-			<td><input placeholder="For" type="text" data-bind="value: forAmount, selectAll: true" class="form-control" /></td>
+			<td><input placeholder="Day" data-bind="value: day" class="form-control" /></td>
+			<td><input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" /></td>
 			<td><input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
-			<td><input type="submit" value="REMOVE" class="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid" /></td>
+			<td><button class ="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE</span></button></td>
 		</tr>
 		<!-- /ko -->
 	</script>

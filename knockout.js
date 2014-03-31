@@ -254,6 +254,9 @@ var vm = function() {
 		g.total = ko.computed(function () {
 			return getTotal(g.transactions());
 		});
+		g.amountLeft = ko.computed(function () {
+			return g.amount() - getTotal(g.transactions());
+		});
 		self.goals.push(g);
 		return g;
 	}
