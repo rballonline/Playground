@@ -53,7 +53,7 @@ var vm = function() {
 		return daysInRange;
 	}
 
-	var nextPayDate = moment('3/7/2014');
+	var nextPayDate = moment('3/7/2014').subtract('days', 1);
 	while (nextPayDate < moment()) {
 		nextPayDate = nextPayDate.add('weeks', 2);
 	}
