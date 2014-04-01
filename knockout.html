@@ -73,8 +73,7 @@
 							</tr>
 							<!-- /ko -->
 							<tr>
-								<td class="goal">NEW GOAL</td>
-								<td><input type="text" data-bind="value: newGoalFor" class="form-control" /></td>
+								<td colspan="2"><input type="text" data-bind="value: newGoalFor" class="form-control" placeholder="" /></td>
 								<td><input type="number" data-bind="value: newGoalAmount" class="form-control number" /></td>
 								<td><button class="btn btn-success btn-block" data-bind="click: addGoal"><span class="glyphicon glyphicon-usd"></span>	<span class="hidden-sm hidden-xs">ADD GOAL</span></button></td>
 							</tr>
@@ -90,7 +89,7 @@
 				<h4>Next Period (<span data-bind="text: nextPayDate"></span> - <span data-bind="text: afterPayDate"></span>)</h4>
 				<div class="table-responsive">
 					<table class="table">
-						<thead><tr><th class="col-xs-1">Day</th><th class="col-xs-7">For</th><th class="col-xs-2 number">Amount</th><th class="col-xs-2"></th></tr></thead>
+						<!-- ko template: { name: 'table-header' } --><!-- /ko -->
 						<tbody>
 							<tr class="info">
 								<td colspan="2" class="number">Paycheck</td>
@@ -115,7 +114,7 @@
 				<h4>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h4>
 				<div class="table-responsive">
 					<table class="table">
-						<thead><tr><th class="col-xs-1">Day</th><th class="col-xs-7">For</th><th class="col-xs-2">Amount</th><th class="col-xs-2"></th></tr></thead>
+						<!-- ko template: { name: 'table-header' } --><!-- /ko -->
 						<tbody>
 							<tr class="info">
 								<td colspan="2" class="number">Paycheck</td>
@@ -195,7 +194,7 @@
 			<td><input placeholder="Day" data-bind="value: day" class="form-control" /></td>
 			<td><input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" /></td>
 			<td><input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
-			<td><button class ="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE</span></button></td>
+			<td><button class ="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid"><span class="glyphicon glyphicon-remove"></span> <span class="hidden-sm hidden-xs">REMOVE</span></button></td>
 		</tr>
 		<!-- /ko -->
 	</script>
