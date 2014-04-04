@@ -55,7 +55,7 @@ var vm = function() {
 
 	var nextPayDate = moment('3/7/2014').subtract('days', 1);
 	while (nextPayDate < moment()) {
-		nextPayDate = nextPayDate.add('weeks', 2);
+		nextPayDate.add('weeks', 2);
 	}
 
 	var priorPayDate = moment(nextPayDate.subtract('weeks', 2)),

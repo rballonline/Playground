@@ -54,7 +54,7 @@
 							<tr class="warning">
 								<td colspan="2"><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
 								<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" /></td>
-								<td>									
+								<td>
 									<button class="btn btn-danger btn-block" data-bind="click: $parent.removeGoal"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE GOAL</span></button>
 								</td>
 							</tr>
@@ -107,8 +107,8 @@
 							<!-- ko template: { name: 'balance-template', data: nextPeriodDetails } --><!-- /ko -->
 						</tfoot>
 					</table>
-				</div>				
-				
+				</div>
+
 				<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
 				<h4>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h4>
@@ -135,7 +135,6 @@
 				</div>
 
 				<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
-
 				<!-- ko if: showOffTheBooks -->
 				<h4>Off the books</h4>
 				<div class="table-responsive">
@@ -194,7 +193,7 @@
 			<td><input placeholder="Day" data-bind="value: day" class="form-control" /></td>
 			<td><input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" /></td>
 			<td><input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
-			<td><button class ="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid"><span class="glyphicon glyphicon-remove"></span> <span class="hidden-sm hidden-xs">REMOVE</span></button></td>
+			<td><button class="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid"><span class="glyphicon glyphicon-remove"></span> <span class="hidden-sm hidden-xs">REMOVE</span></button></td>
 		</tr>
 		<!-- /ko -->
 	</script>
@@ -204,6 +203,6 @@
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
 	<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
-	<script type="text/javascript" src="knockout.js"></script>
+	<script src="~/scripts/knockout-budget.js"></script>
 </body>
 </html>
