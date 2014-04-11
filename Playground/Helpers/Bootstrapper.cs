@@ -9,8 +9,10 @@ namespace Playground.Helpers
 		{
 			base.ConfigureConventions(conventions);
 
-			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("scripts", @"scripts"));
-			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("fonts", @"fonts"));
+			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("scripts", "scripts"));
+			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("fonts", "fonts"));
+			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("app", "app"));
+			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("App", "App"));
 		}
 	}
 }

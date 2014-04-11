@@ -1,0 +1,179 @@
+﻿<br /><br /><br /><br /><br />
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+
+			<div data-bind="visible: shareBoxVisible">
+				<textarea data-bind="value: data, selectAll: true" class="form-control" rows="6"></textarea>
+				Click text box and CTRL+C to copy
+			</div>
+			<div data-bind="visible: loadBoxVisible">
+				<textarea data-bind="value: dataToLoad, valueUpdate: 'input'" class="form-control" placeholder="Paste data here" rows="6"></textarea><br />
+				CTRL+V to paste and load the data
+			</div>
+			<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
+
+			<h4>Current Period (<span data-bind="text: currentPayPeriodStart"></span> - <span data-bind="text: currentPayPeriodEnd"></span>)</h4>
+			<div class="table-responsive">
+				<table class="table">
+					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
+					<tbody>
+						<tr>
+							<td colspan="2" class="number">Starting Amount</td>
+							<td><input placeholder="Starting Amount" type="number" data-bind="value: startingAmount, valueUpdate: 'input'" class="form-control number" /></td>
+							<td></td>
+						</tr>
+						<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
+						<!-- ko foreach: estimates -->
+						<tr class="warning">
+							<td colspan="3" class="number">
+								Amount Left: <span data-bind="text: amountLeft().toFixed(2)"></span>
+								Actual: <span data-bind="text: total().toFixed(2)"></span>
+							</td>
+							<td></td>
+						</tr>
+						<tr class="warning">
+							<td colspan="2"><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
+							<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" /></td>
+							<td>
+								<button class="btn btn-danger btn-block" data-bind="click: $parent.removeEstimate"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE ESTIMATE</span></button>
+							</td>
+						</tr>
+						<!-- ko foreach: expenses -->
+						<tr>
+							<td data-bind="text: dateEntered.format('M/D')" colspan="2" class="number"></td>
+							<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
+							<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeEstimateExpense.bind({ estimate: $parent, expense: $data})"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE EXPENSE</span></button></td>
+						</tr>
+						<!-- /ko -->
+						<tr>
+							<td colspan="2"></td>
+							<td><input type="number" data-bind="value: $parent.newEstimateExpenseAmount, valueUpdate: 'input'" class="form-control number" /></td>
+							<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addEstimateExpense"><span class="glyphicon glyphicon-plus"></span> <span class="hidden-sm hidden-xs">ADD EXPENSE</span></button></td>
+						</tr>
+						<!-- /ko -->
+						<tr>
+							<td colspan="2"><input type="text" data-bind="value: newEstimateFor" class="form-control" placeholder="" /></td>
+							<td><input type="number" data-bind="value: newEstimateAmount" class="form-control number" /></td>
+							<td><button class="btn btn-success btn-block" data-bind="click: addEstimate"><span class="glyphicon glyphicon-usd"></span>	<span class="hidden-sm hidden-xs">ADD ESTIMATE</span></button></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<!-- ko template: { name: 'balance-template', data: currentPeriodDetails } --><!-- /ko -->
+					</tfoot>
+				</table>
+			</div>
+
+			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
+
+			<h4>Next Period (<span data-bind="text: nextPayPeriodStart"></span> - <span data-bind="text: nextPayPeriodEnd"></span>)</h4>
+			<div class="table-responsive">
+				<table class="table">
+					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
+					<tbody>
+						<tr class="info">
+							<td colspan="2" class="number">Paycheck</td>
+							<td><input type="number" class="form-control number" id="payCheckAmount" placeholder="Paycheck Amount" data-bind="value: paycheckAmount, valueUpdate: 'input'"></td>
+							<td></td>
+						</tr>
+						<tr class="info">
+							<td colspan="2" class="number">Starting Balance</td>
+							<td data-bind="text: nextPeriodStarting" class="number"></td>
+							<td></td>
+						</tr>
+						<!-- ko template: { name: 'transaction-template', data: nextPeriod } --><!-- /ko -->
+					</tbody>
+					<tfoot>
+						<!-- ko template: { name: 'balance-template', data: nextPeriodDetails } --><!-- /ko -->
+					</tfoot>
+				</table>
+			</div>
+
+			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
+
+			<h4>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h4>
+			<div class="table-responsive">
+				<table class="table">
+					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
+					<tbody>
+						<tr class="info">
+							<td colspan="2" class="number">Paycheck</td>
+							<td><input type="number" class="form-control number" id="payCheckAmount" placeholder="Paycheck Amount" data-bind="value: paycheckAmount, valueUpdate: 'input'"></td>
+							<td></td>
+						</tr>
+						<tr class="info">
+							<td colspan="2" class="number">Starting Balance</td>
+							<td data-bind="text: afterPeriodStarting" class="number"></td>
+							<td></td>
+						</tr>
+						<!-- ko template: { name: 'transaction-template', data: afterPeriod } --><!-- /ko -->
+					</tbody>
+					<tfoot>
+						<!-- ko template: { name: 'balance-template', data: afterPeriodDetails } --><!-- /ko -->
+					</tfoot>
+				</table>
+			</div>
+
+			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
+			<!-- ko if: showOffTheBooks -->
+			<h4>Off the books</h4>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr><th class="col-md-1 col-xs-2"></th><th class="col-md-1 col-xs-2">Day</th><th class="col-md-6 col-xs-4">For</th><th class="col-md-2 col-xs-2">Amount</th><th class="col-md-2 col-xs-2"></th></tr>
+					</thead>
+					<tbody data-bind="foreach: offTheBooks">
+						<tr>
+							<td><button class="btn btn-success btn-block" data-bind="click: $parent.reAddTransaction"><span class="glyphicon glyphicon-plus"></span>	<span class="hidden-sm hidden-xs">ADD</span></button></td>
+							<td><span data-bind="text: day"></span></td>
+							<td data-bind="text: forAmount"></td>
+							<td><span data-bind="text: amount"></span></td>
+							<td><button class="btn btn-danger btn-block" data-bind="click: $parent.removeTransaction"><span class="glyphicon glyphicon-trash"></span>	<span class="hidden-sm hidden-xs">DELETE</span></button></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!-- /ko -->
+		</div>
+	</div>
+</div>
+<script type="text/html" id="table-header">
+	<thead><tr><th class="col-md-1 col-xs-2">Day</th><th class="col-md-6 col-xs-5">For</th><th class="col-md-2 col-xs-2 number">Amount</th><th class="col-md-2 col-xs-2"></th></tr></thead>
+</script>
+<script type="text/html" id="addTx-template">
+	<h4>Add Transaction</h4>
+	<form data-bind="submit: addTransaction" role="form" class="form">
+		<div class="table-responsive">
+			<table class="table">
+				<tbody>
+					<tr>
+						<td class="col-md-1 col-xs-2"><input placeholder="Day" data-bind="value: newDay" class="form-control" maxlength="2" /></td>
+						<td class="col-md-7 col-xs-5"><input placeholder="For" type="text" data-bind="value: newFor" class="form-control" /></td>
+						<td class="col-md-2 col-xs-3"><input placeholder="Amount" type="number" data-bind="value: newAmount, valueUpdate: 'input'" class="form-control number" /></td>
+						<td class="col-md-2 col-xs-2"><button type="submit" class="btn btn-primary btn-block"><span class="glyphicon glyphicon-plus"></span>	<span class="hidden-sm hidden-xs">ADD</span></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</form>
+</script>
+<script type="text/html" id="balance-template">
+	<tr data-bind="css: { 'success': amount >= 0, 'danger': amount < 0 }">
+		<td colspan="2" class="number">Ending Balance</td>
+		<td class="number" data-bind="text: amount.toFixed(2)"></td>
+		<td></td>
+	</tr>
+</script>
+<script type="text/html" id="transaction-template">
+	<!-- ko if: $data.length < 1 -->
+	<tr><td colspan="5">No transactions in this period</td></tr>
+	<!-- /ko -->
+	<!-- ko foreach: $data -->
+	<tr>
+		<td><input placeholder="Day" data-bind="value: day" class="form-control" /></td>
+		<td><input placeholder="For" type="text" data-bind="value: forAmount" class="form-control" /></td>
+		<td><input placeholder="Amount" type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
+		<td><button class="btn btn-primary btn-block" data-bind="click: $parents[1].markTransactionPaid"><span class="glyphicon glyphicon-remove"></span> <span class="hidden-sm hidden-xs">REMOVE</span></button></td>
+	</tr>
+	<!-- /ko -->
+</script>
