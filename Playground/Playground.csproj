@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App\main.js" />
+    <Content Include="App\savings.html" />
     <Content Include="App\shell.html" />
     <Content Include="App\shell.js" />
     <Content Include="App\dashboard.html" />
@@ -194,6 +195,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="App\modules\payPeriods.ts" />
     <TypeScriptCompile Include="App\dashboard.ts" />
+    <TypeScriptCompile Include="App\savings.ts" />
     <TypeScriptCompile Include="Scripts\typings\durandal\durandal.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />

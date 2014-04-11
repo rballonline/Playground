@@ -84,6 +84,9 @@
                 _this.loadBoxVisible(!_this.loadBoxVisible());
                 _this.shareBoxVisible(false);
             };
+            this.currentPeriodSubTotal = ko.computed(function () {
+                return { amount: parseFloat(_this.startingAmount()) - _this.getTotal(_this.currentPeriod()) };
+            });
             this.currentPeriodDetails = ko.computed(function () {
                 return { amount: parseFloat(_this.startingAmount()) - _this.getTotal(_this.currentPeriod()) - _this.getTotal(_this.estimates()) };
             });

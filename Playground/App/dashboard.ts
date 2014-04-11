@@ -198,6 +198,10 @@ class BudgetViewModel {
         this.loadBoxVisible(!this.loadBoxVisible());
         this.shareBoxVisible(false);
     };
+
+    currentPeriodSubTotal = ko.computed(() => {
+        return { amount: parseFloat(this.startingAmount()) - this.getTotal(this.currentPeriod()) };
+    });
 	
 	currentPeriodDetails = ko.computed(() => {
         return { amount: parseFloat(this.startingAmount()) - this.getTotal(this.currentPeriod()) - this.getTotal(this.estimates()) };

@@ -1,4 +1,4 @@
-﻿<br /><br /><br /><br /><br />
+﻿<br /><br /><br />
 <div class="container">
 	<div class="row">
 		<div class="col-md-12">
@@ -13,7 +13,7 @@
 			</div>
 			<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
 
-			<h4>Current Period (<span data-bind="text: currentPayPeriodStart"></span> - <span data-bind="text: currentPayPeriodEnd"></span>)</h4>
+			<h2>Current Period (<span data-bind="text: currentPayPeriodStart"></span> - <span data-bind="text: currentPayPeriodEnd"></span>)</h2>
 			<div class="table-responsive">
 				<table class="table">
 					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
@@ -24,24 +24,29 @@
 							<td></td>
 						</tr>
 						<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
+					</tbody>
+					<tfoot>
+						<!-- ko template: { name: 'balance-template', data: currentPeriodSubTotal } --><!-- /ko -->
+					</tfoot>
+				</table>
+				<h3>Estimates</h3>
+				<table class="table">
+					<tbody>
 						<!-- ko foreach: estimates -->
 						<tr class="warning">
-							<td colspan="3" class="number">
-								Amount Left: <span data-bind="text: amountLeft().toFixed(2)"></span>
+							<td class="col-xs-7" colspan="2"><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
+							<td class="col-xs-2">
+								<input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" />
+								Amount Left: <span data-bind="text: amountLeft().toFixed(2)"></span><br />
 								Actual: <span data-bind="text: total().toFixed(2)"></span>
 							</td>
-							<td></td>
-						</tr>
-						<tr class="warning">
-							<td colspan="2"><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
-							<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" /></td>
-							<td>
+							<td class="col-xs-2">
 								<button class="btn btn-danger btn-block" data-bind="click: $parent.removeEstimate"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE ESTIMATE</span></button>
 							</td>
 						</tr>
 						<!-- ko foreach: expenses -->
 						<tr>
-							<td data-bind="text: dateEntered.format('M/D')" colspan="2" class="number"></td>
+							<td data-bind="text: dateEntered.format('M/D')" class="number" colspan="2"></td>
 							<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
 							<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeEstimateExpense.bind({ estimate: $parent, expense: $data})"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE EXPENSE</span></button></td>
 						</tr>
@@ -66,7 +71,7 @@
 
 			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
-			<h4>Next Period (<span data-bind="text: nextPayPeriodStart"></span> - <span data-bind="text: nextPayPeriodEnd"></span>)</h4>
+			<h2>Next Period (<span data-bind="text: nextPayPeriodStart"></span> - <span data-bind="text: nextPayPeriodEnd"></span>)</h2>
 			<div class="table-responsive">
 				<table class="table">
 					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
@@ -91,7 +96,7 @@
 
 			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
-			<h4>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h4>
+			<h2>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h2>
 			<div class="table-responsive">
 				<table class="table">
 					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
@@ -116,7 +121,7 @@
 
 			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 			<!-- ko if: showOffTheBooks -->
-			<h4>Off the books</h4>
+			<h3>Off the books</h3>
 			<div class="table-responsive">
 				<table class="table">
 					<thead>
@@ -159,7 +164,7 @@
 </script>
 <script type="text/html" id="balance-template">
 	<tr data-bind="css: { 'success': amount >= 0, 'danger': amount < 0 }">
-		<td colspan="2" class="number">Ending Balance</td>
+		<td colspan="2" class="number">Balance</td>
 		<td class="number" data-bind="text: amount.toFixed(2)"></td>
 		<td></td>
 	</tr>
