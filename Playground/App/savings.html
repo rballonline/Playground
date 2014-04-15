@@ -5,6 +5,8 @@
 </div>
 Amount to work with: <div data-bind="text: amount"></div>
 
+<div class="bg-danger" data-bind="visible: amount < 0">You have no money to work with. Change your budget.</div>
+
 <form data-bind="submit: addGoal">
 	<input data-bind="value: newGoalFor" class="form-control" placeholder="Goal for..." /> 
 	<input data-bind="value: newAmount" class="form-control" placeholder="Amount" /> 
@@ -15,7 +17,7 @@ Amount to work with: <div data-bind="text: amount"></div>
 	<div class="number" style="float: left;">
 		Goal for <input data-bind="value: goalFor" /> amount <input data-bind="value: amount, valueUpdate: 'input'" class="number" /><br />
 		Current Savings <input data-bind="value: currentSavings, valueUpdate: 'input'" class="number"><br />
-		Contributing this period <input data-bind="value: contributing, valueUpdate: 'input'" class="number"><br />
+		Contributing this period <input data-bind="value: contributing, valueUpdate: 'input'" class="number"> <button class="btn btn-success" data-bind="click: addToCurrentSavings"><i class="glyphicon glyphicon-plus-sign"></i></button><br />
 		Balance after period <span data-bind="text: balance()"></span><br />
 		At this rate it will take you <span data-bind="text: periods()"></span> to reach goal.
 	</div>

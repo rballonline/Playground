@@ -8,7 +8,7 @@
                 var i = 0;
                 var balance = parseFloat(_this.currentSavings);
 
-                if (parseFloat(_this.contributing) > 0) {
+                if (_this.contributing && parseFloat(_this.contributing) > 0) {
                     while (balance < parseFloat(_this.amount)) {
                         balance += parseFloat(_this.contributing);
                         i++;
@@ -24,6 +24,10 @@
         }
         Goal.prototype.balance = function () {
             return parseFloat(this.currentSavings) + parseFloat(this.contributing);
+        };
+
+        Goal.prototype.addToCurrentSavings = function () {
+            this.currentSavings = (parseFloat(this.currentSavings) + parseFloat(this.contributing)).toFixed(2);
         };
         return Goal;
     })();

@@ -28,7 +28,7 @@ class Goal implements IGoal {
         var i = 0;
         var balance = parseFloat(this.currentSavings);
 
-        if (parseFloat(this.contributing) > 0) {
+        if (this.contributing && parseFloat(this.contributing) > 0) {
             while (balance < parseFloat(this.amount)) {
                 balance += parseFloat(this.contributing);
                 i++;
@@ -40,6 +40,10 @@ class Goal implements IGoal {
 
     balance() {
         return parseFloat(this.currentSavings) + parseFloat(this.contributing);
+    }
+
+    addToCurrentSavings() {
+        this.currentSavings = (parseFloat(this.currentSavings) + parseFloat(this.contributing)).toFixed(2);
     }
 }
 
