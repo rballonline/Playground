@@ -1,1 +1,22 @@
 ﻿<h1>Savings</h1>
+<div data-bind="if: budgetNotComplete">
+	Budget not filled out, fill it out first then come back here.
+	<a href="#/">Go to budget</a>
+</div>
+Amount to work with: <div data-bind="text: amount"></div>
+
+<form data-bind="submit: addGoal">
+	<input data-bind="value: newGoalFor" class="form-control" placeholder="Goal for..." /> 
+	<input data-bind="value: newAmount" class="form-control" placeholder="Amount" /> 
+	<button class="btn btn-primary" type="submit">Add Goal</button>
+</form>
+
+<div class="row" data-bind="foreach: goals">
+	<div class="number" style="float: left;">
+		Goal for <input data-bind="value: goalFor" /> amount <input data-bind="value: amount, valueUpdate: 'input'" class="number" /><br />
+		Current Savings <input data-bind="value: currentSavings, valueUpdate: 'input'" class="number"><br />
+		Contributing this period <input data-bind="value: contributing, valueUpdate: 'input'" class="number"><br />
+		Balance after period <span data-bind="text: balance()"></span><br />
+		At this rate it will take you <span data-bind="text: periods()"></span> to reach goal.
+	</div>
+</div>
