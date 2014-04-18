@@ -17,8 +17,9 @@ Amount to work with: <div data-bind="text: amount"></div>
 	<div class="number" style="float: left;">
 		Goal for <input data-bind="value: goalFor" /> amount <input data-bind="value: amount, valueUpdate: 'input'" class="number" /><br />
 		Current Savings <input data-bind="value: currentSavings, valueUpdate: 'input'" class="number"><br />
-		Contributing this period <input data-bind="value: contributing, valueUpdate: 'input'" class="number"> <button class="btn btn-success" data-bind="click: addToCurrentSavings"><i class="glyphicon glyphicon-plus-sign"></i></button><br />
+		Contributing this period <input data-bind="value: contributing, valueUpdate: 'input'" class="number"> <button class="btn btn-success" data-bind="click: $parent.addToCurrentSavings.bind($data)"><i class="glyphicon glyphicon-plus-sign"></i></button><br />
 		Balance after period <span data-bind="text: balance()"></span><br />
-		At this rate it will take you <span data-bind="text: periods()"></span> to reach goal.
+		At this rate it will take you <span data-bind="text: periods()"></span> to reach goal.<br />
+		<button class="btn btn-danger" data-bind="click: $parent.removeGoal"><span class="glyphicon glyphicon-trash"></span> REMOVE GOAL</button>
 	</div>
 </div>

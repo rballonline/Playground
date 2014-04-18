@@ -238,18 +238,12 @@ class BudgetViewModel {
         });
 
         var data = ko.toJSON({ startingAmount: this.startingAmount, paycheckAmount: this.paycheckAmount, transactions: transactions, offTheBooks: this.offTheBooks(), estimates: estimates });
+
         if (this.pageLoaded) {
             localStorage.setItem('data', data); // otherwise update will occur overrided item on load
         }
         return data;
-    });
-
-	loadData = ko.computed(() => {
-        if (this.dataToLoad()) {
-            localStorage.setItem('data', this.dataToLoad());
-            this.load();
-        }
-    });    
+    });   
 
     addEstimateExpense = (estimate : Estimate) => {
         var expense: EstimateExpense = { amount: ko.observable<string>(this.newEstimateExpenseAmount()), dateEntered: moment() };

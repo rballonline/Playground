@@ -2,61 +2,81 @@
 import ko = require('knockout');
 import _ = require('lodash');
 
-interface IGoal {
-    goalFor: string;
-    amount: string;
-    currentSavings: string;
-    contributing: string;
-    periods(): string;
-    balance(): number;
-}
-
-class Goal implements IGoal {
-    goalFor: string;
-    amount: string;
-    currentSavings = '';
-    contributing = '';
+class Goal {
+    goalFor = ko.observable<string>();
+    amount = ko.observable<string>();
+    currentSavings = ko.observable<string>();
+    contributing = ko.observable<string>();
 
     constructor(goalFor: string, amount: string) {
-        this.goalFor = goalFor;
-        this.amount = amount;
-        this.currentSavings = '0';
-        this.contributing = '0';
+        this.goalFor(goalFor);
+        this.amount(amount);
+        this.currentSavings('0');
+        this.contributing('0');
     }
 
-    periods = () => {
+    periods = ko.computed<string>(() => {
         var i = 0;
-        var balance = parseFloat(this.currentSavings);
+        var balance = parseFloat(this.currentSavings());
 
-        if (this.contributing && parseFloat(this.contributing) > 0) {
-            while (balance < parseFloat(this.amount)) {
-                balance += parseFloat(this.contributing);
+        if (this.contributing && parseFloat(this.contributing()) > 0) {
+            while (balance < parseFloat(this.amount())) {
+                balance += parseFloat(this.contributing());
                 i++;
             }
             return i + ' period' + (i > 1 ? 's' : '');
         }
         return 'infinite periods';
-    }
+    });
 
     balance() {
-        return parseFloat(this.currentSavings) + parseFloat(this.contributing);
-    }
-
-    addToCurrentSavings() {
-        this.currentSavings = (parseFloat(this.currentSavings) + parseFloat(this.contributing)).toFixed(2);
+        return parseFloat(this.currentSavings()) + parseFloat(this.contributing());
     }
 }
 
 class SavingsViewModel {
+    private pageLoaded = false;
+
     budgetNotComplete = false;
     amount = 0;
-    goals = [];
-    newGoalFor = '';
-    newAmount = '';
+    goals = ko.observableArray<Goal>();
+    newGoalFor = ko.observable<string>();
+    newAmount = ko.observable<string>();
+
+   savings = ko.computed(() => {
+        var g = [];
+       _.each(this.goals(), (goal) => {
+           var dummy = goal.amount() + goal.contributing() + goal.currentSavings() + goal.goalFor();
+           g.push(goal);
+        });
+
+        var savings = ko.toJSON({ goals: g });
+        if (this.pageLoaded) { // otherwise update will occur overrided item on load
+            localStorage.setItem('savings', savings);
+        }
+        return savings;
+    });
 
     addGoal = () => {
-        var newGoal = new Goal(this.newGoalFor, this.newAmount);
+        var newGoal = new Goal(this.newGoalFor(), this.newAmount());
         this.goals.push(newGoal);
+    };
+
+    removeGoal = (goal) => {
+        this.goals.remove(goal);
+    };
+
+    addToCurrentSavings(goal : Goal) {
+        goal.currentSavings((parseFloat(goal.currentSavings()) + parseFloat(goal.contributing())).toFixed(2));
+    }
+
+    loadSavings = () => {
+        if (localStorage.getItem('savings')) {
+            var savings = JSON.parse(localStorage.getItem('savings'));
+            _.each(savings.goals, (goal : any) => {
+                this.goals.push(new Goal(goal.goalFor, goal.amount));
+            });
+        }
     };
 
     activate = () => {
@@ -85,6 +105,9 @@ class SavingsViewModel {
         else {
             this.budgetNotComplete = true;
         }
+
+        this.loadSavings();
+        this.pageLoaded = true;
     }
 
 }

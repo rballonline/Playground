@@ -123,16 +123,11 @@
                 });
 
                 var data = ko.toJSON({ startingAmount: _this.startingAmount, paycheckAmount: _this.paycheckAmount, transactions: transactions, offTheBooks: _this.offTheBooks(), estimates: estimates });
+
                 if (_this.pageLoaded) {
                     localStorage.setItem('data', data); // otherwise update will occur overrided item on load
                 }
                 return data;
-            });
-            this.loadData = ko.computed(function () {
-                if (_this.dataToLoad()) {
-                    localStorage.setItem('data', _this.dataToLoad());
-                    _this.load();
-                }
             });
             this.addEstimateExpense = function (estimate) {
                 var expense = { amount: ko.observable(_this.newEstimateExpenseAmount()), dateEntered: moment() };

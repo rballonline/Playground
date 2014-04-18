@@ -13,14 +13,13 @@
 });
 define(function (require) {
 	var system = require('durandal/system'),
-			app = require('durandal/app'),
-		ko = require('koPunches');
+			app = require('durandal/app');
+
 	system.debug(true);
 	app.title = 'Durandal Starter Kit';
 	app.configurePlugins({
 		router: true,
-		dialog: true,
-		observable: true
+		dialog: true
 	});
 	app.start().then(function () {
 		app.setRoot('shell');
