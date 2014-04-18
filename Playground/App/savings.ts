@@ -29,9 +29,9 @@ class Goal {
         return 'infinite periods';
     });
 
-    balance() {
+    balance = ko.computed<number>(() => {
         return parseFloat(this.currentSavings()) + parseFloat(this.contributing());
-    }
+    });
 }
 
 class SavingsViewModel {
@@ -46,7 +46,7 @@ class SavingsViewModel {
    savings = ko.computed(() => {
         var g = [];
        _.each(this.goals(), (goal) => {
-           var dummy = goal.amount() + goal.contributing() + goal.currentSavings() + goal.goalFor();
+           var dummy = goal.periods() + goal.goalFor();
            g.push(goal);
         });
 
@@ -73,8 +73,11 @@ class SavingsViewModel {
     loadSavings = () => {
         if (localStorage.getItem('savings')) {
             var savings = JSON.parse(localStorage.getItem('savings'));
-            _.each(savings.goals, (goal : any) => {
-                this.goals.push(new Goal(goal.goalFor, goal.amount));
+            _.each(savings.goals, (goal: any) => {
+                var newGoal = new Goal(goal.goalFor, goal.amount);
+                newGoal.currentSavings(goal.currentSavings);
+                newGoal.contributing(goal.contributing);
+                this.goals.push(newGoal);
             });
         }
     };

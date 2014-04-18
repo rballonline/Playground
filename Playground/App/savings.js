@@ -19,14 +19,14 @@
                 }
                 return 'infinite periods';
             });
+            this.balance = ko.computed(function () {
+                return parseFloat(_this.currentSavings()) + parseFloat(_this.contributing());
+            });
             this.goalFor(goalFor);
             this.amount(amount);
             this.currentSavings('0');
             this.contributing('0');
         }
-        Goal.prototype.balance = function () {
-            return parseFloat(this.currentSavings()) + parseFloat(this.contributing());
-        };
         return Goal;
     })();
 
@@ -42,7 +42,7 @@
             this.savings = ko.computed(function () {
                 var g = [];
                 _.each(_this.goals(), function (goal) {
-                    var dummy = goal.amount() + goal.contributing() + goal.currentSavings() + goal.goalFor();
+                    var dummy = goal.periods() + goal.goalFor();
                     g.push(goal);
                 });
 
@@ -63,7 +63,10 @@
                 if (localStorage.getItem('savings')) {
                     var savings = JSON.parse(localStorage.getItem('savings'));
                     _.each(savings.goals, function (goal) {
-                        _this.goals.push(new Goal(goal.goalFor, goal.amount));
+                        var newGoal = new Goal(goal.goalFor, goal.amount);
+                        newGoal.currentSavings(goal.currentSavings);
+                        newGoal.contributing(goal.contributing);
+                        _this.goals.push(newGoal);
                     });
                 }
             };
