@@ -6,13 +6,13 @@
             var payDates = [];
             var payDate = moment(firstPayDate || '4/4/2014');
 
-            while (payDate < moment()) {
+            while (payDate < moment().startOf('day')) {
                 payDate.add('weeks', 2); // get the next pay date
             }
             payDates.push(moment(payDate.subtract('weeks', 2)));
             payDates.push(moment(payDate.add('weeks', 2)));
             payDates.push(moment(payDate.add('weeks', 2)));
-            payDates.push(moment(payDate.subtract('weeks', 4).add('months', 1).subtract('days', 1)));
+            payDates.push(moment(payDate.subtract('weeks', 4).add('months', 1)));
             return payDates;
         };
         return BiWeeklyPayDateCalculator;
@@ -37,10 +37,10 @@
                     daysInRange.push(i);
                 }
             } else {
-                for (var i = startMoment.date(); i <= moment().daysInMonth(); i++) {
+                for (var i = startMoment.date(); i <= startMoment.daysInMonth(); i++) {
                     daysInRange.push(i);
                 }
-                for (var i = 1; i <= endMoment.date(); i++) {
+                for (var i = 1; i < endMoment.date(); i++) {
                     daysInRange.push(i);
                 }
             }

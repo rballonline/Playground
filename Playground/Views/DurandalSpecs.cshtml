@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Jasmine Spec Runner v2.0.0</title>
+	<link rel="shortcut icon" type="image/png" href="~/scripts/jasmine_favicon.png">
+	<link rel="stylesheet" type="text/css" href="~/scripts/jasmine.css">
+
+	<script src="~/scripts/jasmine.js"></script>
+	<script src="~/scripts/jasmine-html.js"></script>
+	<script src="~/scripts/boot.js"></script>
+	<script>
+	var require = {
+		paths: {
+			"domReady": "../scripts/domReady",
+			"specs": "../scripts/specs",
+			'moment': '../scripts/moment'
+		}
+	};
+</script>
+	<script src="~/Scripts/require.js"></script>
+	<script>
+		require(["domReady!", "specs"], function (document) {
+			jasmine.getEnv().addReporter(new jasmine.HtmlReporter({}));
+			jasmine.getEnv().execute();
+		});
+	</script>
+</head>
+<body>
+</body>
+</html>

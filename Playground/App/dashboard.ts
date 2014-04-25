@@ -1,4 +1,5 @@
 ﻿import PayPeriods = require('modules/payPeriods');
+import budget = require('modules/budget');
 import ko = require('knockout');
 import _ = require('lodash');
 import moment = require('moment');
@@ -25,6 +26,7 @@ interface Estimate extends HasAmount {
 
 class BudgetViewModel {
     pageLoaded = false;
+
     currentPayPeriodStart = ko.observable<string>();
     currentPayPeriodEnd = ko.observable<string>();
     nextPayPeriodStart = ko.observable<string>();
@@ -42,7 +44,6 @@ class BudgetViewModel {
     
 	newEstimateFor = ko.observable<string>();
     newEstimateAmount = ko.observable<string>();
-
 	newEstimateExpenseAmount = ko.observable<string>();
 	
     currentPeriod = ko.observableArray<Transaction>();

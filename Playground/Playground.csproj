@@ -143,8 +143,12 @@
     <Content Include="Content\images\icon.png" />
     <Content Include="Content\images\ios-startup-image-landscape.png" />
     <Content Include="Content\images\ios-startup-image-portrait.png" />
+    <Content Include="Content\jasmine.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\almond-custom.js" />
+    <Content Include="Scripts\boot.js" />
+    <Content Include="Scripts\console.js" />
+    <Content Include="Scripts\domReady.js" />
     <Content Include="Scripts\durandal\activator.js" />
     <Content Include="Scripts\durandal\app.js" />
     <Content Include="Scripts\durandal\binder.js" />
@@ -161,6 +165,10 @@
     <Content Include="Scripts\durandal\transitions\entrance.js" />
     <Content Include="Scripts\durandal\viewEngine.js" />
     <Content Include="Scripts\durandal\viewLocator.js" />
+    <Content Include="Scripts\jasmine-html.js" />
+    <Content Include="Scripts\jasmine.css" />
+    <Content Include="Scripts\jasmine.js" />
+    <Content Include="Scripts\jasmine_favicon.png" />
     <Content Include="Scripts\lodash.js" />
     <Content Include="Scripts\lodash.min.js" />
     <Content Include="weyland-config.js" />
@@ -179,7 +187,9 @@
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
     <Content Include="Scripts\text.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -191,12 +201,16 @@
     <Content Include="Views\Knockout.cshtml" />
     <Content Include="Scripts\jquery-1.9.1.min.map" />
     <Content Include="Views\Durandal.cshtml" />
+    <Content Include="Views\DurandalSpecs.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="App\modules\budget.ts" />
     <TypeScriptCompile Include="App\modules\payPeriods.ts" />
     <TypeScriptCompile Include="App\dashboard.ts" />
     <TypeScriptCompile Include="App\savings.ts" />
+    <TypeScriptCompile Include="Scripts\specs.ts" />
     <TypeScriptCompile Include="Scripts\typings\durandal\durandal.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\knockout.viewmodel\knockout.viewmodel.d.ts" />
