@@ -1,8 +1,8 @@
-﻿import payPeriods = require('../App/modules/payPeriods');
-import budget = require('../App/modules/budget');
+﻿import PayPeriods = require('modules/payPeriods');
+import budget = require('modules/budget');
 
 describe("For the bi weekly pay dates", function () {
-    var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
+    var biWeeklyPayDateCalculator = new PayPeriods.BiWeeklyPayDateCalculator();
     var payDates = biWeeklyPayDateCalculator.getPayDates('01/15/2050');
 
     it('there should be 4.', () => {
@@ -24,7 +24,7 @@ describe("For the bi weekly pay dates", function () {
 });
 
 describe("For the bi weekly pay dates spanning differrent months", function () {
-    var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
+    var biWeeklyPayDateCalculator = new PayPeriods.BiWeeklyPayDateCalculator();
     var payDates = biWeeklyPayDateCalculator.getPayDates('01/05/2050');
 
     it('there should be 4.', () => {
@@ -46,10 +46,10 @@ describe("For the bi weekly pay dates spanning differrent months", function () {
 });
 
 describe('For bi weekly pay periods', () => {
-    var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
+    var biWeeklyPayDateCalculator = new PayPeriods.BiWeeklyPayDateCalculator();
     var payDates = biWeeklyPayDateCalculator.getPayDates('01/15/2050');
 
-    var biWeeklyPayPeriodCalculator = new payPeriods.BiWeeklyPayPeriodCalculator();
+    var biWeeklyPayPeriodCalculator = new PayPeriods.BiWeeklyPayPeriodCalculator();
     var periods = biWeeklyPayPeriodCalculator.getPayPeriods(payDates);
 
     it("there should be three segments", () => {
@@ -76,10 +76,10 @@ describe('For bi weekly pay periods', () => {
 });
 
 describe('For bi weekly pay periods spanning different months', () => {
-    var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
+    var biWeeklyPayDateCalculator = new PayPeriods.BiWeeklyPayDateCalculator();
     var payDates = biWeeklyPayDateCalculator.getPayDates('01/05/2050');
 
-    var biWeeklyPayPeriodCalculator = new payPeriods.BiWeeklyPayPeriodCalculator();
+    var biWeeklyPayPeriodCalculator = new PayPeriods.BiWeeklyPayPeriodCalculator();
     var periods = biWeeklyPayPeriodCalculator.getPayPeriods(payDates);
 
     it("there should be three segments", () => {
@@ -105,5 +105,63 @@ describe('For bi weekly pay periods spanning different months', () => {
         for(var i = 19; i < 22; i++) {
             expect(periods[2]).toContain(i);
         }
+    });
+});
+
+describe('Bi-weekly budget', () => {
+    var b;
+
+    beforeEach(() => {
+        b = new budget.BiWeeklyBudget('01/15/2050');
+        b.setStartingAmount(200);
+    });
+
+    it('1st period ending balance should be correct', () => {
+        expect(b.getEndingBalance(1)).toBe(200);
+
+        b.addTransaction(new budget.Transaction(1, '', 5)); // 1
+        b.addTransaction(new budget.Transaction(2, '', 10)); // 1
+        b.addTransaction(new budget.Transaction(14, '', 5)); // 1
+        b.addTransaction(new budget.Transaction(15, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(18, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(28, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(29, '', 10)); // 3
+        b.addTransaction(new budget.Transaction(30, '', 10)); // 3
+
+        expect(b.getEndingBalance(1)).toBe(180);
+
+        b.addEstimate(new budget.Estimate('', 50));
+
+        expect(b.getEndingBalance(1)).toBe(130);
+    });
+
+    it('2nd period ending balance should be correct', () => {
+        b.addTransaction(new budget.Transaction(2, '', 10)); // 1
+        b.addTransaction(new budget.Transaction(15, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(18, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(28, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(29, '', 10)); // 3
+        b.addTransaction(new budget.Transaction(30, '', 10)); // 3
+
+        expect(b.getEndingBalance(2)).toBe(160);
+
+        b.addEstimate(new budget.Estimate('', 10));
+
+        expect(b.getEndingBalance(2)).toBe(150);
+    });
+
+    it('3rd period ending balance should be correct', () => {
+        b.addTransaction(new budget.Transaction(2, '', 10)); // 1
+        b.addTransaction(new budget.Transaction(15, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(18, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(28, '', 10)); // 2
+        b.addTransaction(new budget.Transaction(29, '', 10)); // 3
+        b.addTransaction(new budget.Transaction(30, '', 10)); // 3
+
+        expect(b.getEndingBalance(3)).toBe(140);
+
+        b.addEstimate(new budget.Estimate('', 10));
+
+        expect(b.getEndingBalance(3)).toBe(130);
     });
 });

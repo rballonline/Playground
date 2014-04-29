@@ -12,9 +12,12 @@
 	<script>
 	var require = {
 		paths: {
-			"domReady": "../scripts/domReady",
-			"specs": "../scripts/specs",
-			'moment': '../scripts/moment'
+			"domReady": "../scripts/domReady"
+			,"specs": "../App/specs"
+			,'moment': '../scripts/moment'
+			, 'lodash': '../scripts/lodash'
+			, 'modules/payPeriods': '../App/modules/payPeriods'
+			, 'modules/budget': '../App/modules/budget'
 		}
 	};
 </script>
@@ -25,6 +28,7 @@
 			jasmine.getEnv().execute();
 		});
 	</script>
+	
 </head>
 <body>
 </body>

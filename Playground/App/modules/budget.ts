@@ -1,27 +1,48 @@
-﻿import payPeriods = require('modules/payPeriods');
+﻿import payPeriods = require('../modules/payPeriods'); // Need to use modules/payPeriods for all aliases
 import _ = require('lodash');
 
 export interface Budget {
+    setStartingAmount(amount: number);
+    setPayCheckAmount(amount: number);
+    getEndingBalance(period: number);
+    getStartingBalance(period: number);
+    modifyTransaction(index: number, transaction: Transaction);
+    addTransaction(transaction: Transaction);
+    modifyEstimate(index: number, estimate: Estimate);
+    addEstimate(estimate: Estimate);
 }
 
 export interface CanTotal {
     amount: number;
 }
 
-export interface Transaction extends CanTotal {
+export class Transaction implements CanTotal {
     day: number;
     isFor: string;
+    amount: number;
+
+    constructor(day: number, isFor: string, amount: number) {
+        this.day = day;
+        this.isFor = isFor;
+        this.amount = amount;
+    }
 }
 
-export interface Expense extends CanTotal {
+export class Expense implements CanTotal {
     date: Moment;
+    amount: number;
 }
 
 export class Estimate implements CanTotal {
     name: string;
     expenses: Array<Expense>;
     amount: number;
-    spent = total(this.expenses);
+    spent = () => { return total(this.expenses); }
+
+    constructor(name: string, amount: number) {
+        this.name = name;
+        this.amount = amount;
+    }
 }
 
 function total(values: Array<CanTotal>) {
@@ -34,12 +55,12 @@ function total(values: Array<CanTotal>) {
 
 export class Estimates {
     estimates: Array<Estimate> = [];
-    total = total(this.estimates);
+    total = () => { return total(this.estimates) };
 }
 
 export class Period {
     transactions: Array<Transaction> = [];
-    total = total(this.transactions);
+    total = () => { return total(this.transactions) };
 }
 
 export class BiWeeklyBudget implements Budget {
@@ -63,13 +84,13 @@ export class BiWeeklyBudget implements Budget {
 
     getEndingBalance(period: number) {
         if(period == 1) {
-            return this.startingAmount - this.firstPeriod.total - this.Estimates.total;
+            return this.startingAmount - this.firstPeriod.total() - this.Estimates.total();
         }
         else if(period == 2) {
-            return this.getEndingBalance(1) + this.payCheckAmount - this.secondPeriod.total;
+            return this.getEndingBalance(1) + this.payCheckAmount - this.secondPeriod.total();
         }
         else if(period == 3) {
-            return this.getEndingBalance(2) + this.payCheckAmount - this.thirdPeriod.total;
+            return this.getEndingBalance(2) + this.payCheckAmount - this.thirdPeriod.total();
         }
         throw 'Invalid period, must be less than 4, was ' + period;
     }
@@ -109,7 +130,7 @@ export class BiWeeklyBudget implements Budget {
     }
 
     modifyEstimate(index: number, estimate: Estimate) {
-        this.Estimates[index] = estimate;;
+        this.Estimates[index] = estimate;
     }
 
     addEstimate(estimate: Estimate) {

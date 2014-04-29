@@ -19,6 +19,18 @@
 </head>
 <body>
 	<div id="applicationHost"></div>
+	<script>
+		var require = {
+			paths: {
+				"domReady": "../scripts/domReady"
+				, "specs": "../scripts/specs"
+				, 'moment': '../scripts/moment'
+				, 'lodash': '../scripts/lodash'
+				, 'payPeriods': '../App/modules/payPeriods'
+				, 'budget': '../App/modules/budget'
+			}
+		};
+	</script>
 	<script src="~/Scripts/require.js" data-main="../App/main"></script>
 </body>
 </html>

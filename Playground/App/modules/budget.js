@@ -1,7 +1,29 @@
-﻿define(["require", "exports", 'modules/payPeriods', 'lodash'], function(require, exports, payPeriods, _) {
+﻿define(["require", "exports", '../modules/payPeriods', 'lodash'], function(require, exports, payPeriods, _) {
+    var Transaction = (function () {
+        function Transaction(day, isFor, amount) {
+            this.day = day;
+            this.isFor = isFor;
+            this.amount = amount;
+        }
+        return Transaction;
+    })();
+    exports.Transaction = Transaction;
+
+    var Expense = (function () {
+        function Expense() {
+        }
+        return Expense;
+    })();
+    exports.Expense = Expense;
+
     var Estimate = (function () {
-        function Estimate() {
-            this.spent = total(this.expenses);
+        function Estimate(name, amount) {
+            var _this = this;
+            this.spent = function () {
+                return total(_this.expenses);
+            };
+            this.name = name;
+            this.amount = amount;
         }
         return Estimate;
     })();
@@ -17,8 +39,11 @@
 
     var Estimates = (function () {
         function Estimates() {
+            var _this = this;
             this.estimates = [];
-            this.total = total(this.estimates);
+            this.total = function () {
+                return total(_this.estimates);
+            };
         }
         return Estimates;
     })();
@@ -26,8 +51,11 @@
 
     var Period = (function () {
         function Period() {
+            var _this = this;
             this.transactions = [];
-            this.total = total(this.transactions);
+            this.total = function () {
+                return total(_this.transactions);
+            };
         }
         return Period;
     })();
@@ -56,11 +84,11 @@
 
         BiWeeklyBudget.prototype.getEndingBalance = function (period) {
             if (period == 1) {
-                return this.startingAmount - this.firstPeriod.total - this.Estimates.total;
+                return this.startingAmount - this.firstPeriod.total() - this.Estimates.total();
             } else if (period == 2) {
-                return this.getEndingBalance(1) + this.payCheckAmount - this.secondPeriod.total;
+                return this.getEndingBalance(1) + this.payCheckAmount - this.secondPeriod.total();
             } else if (period == 3) {
-                return this.getEndingBalance(2) + this.payCheckAmount - this.thirdPeriod.total;
+                return this.getEndingBalance(2) + this.payCheckAmount - this.thirdPeriod.total();
             }
             throw 'Invalid period, must be less than 4, was ' + period;
         };
@@ -96,7 +124,6 @@
 
         BiWeeklyBudget.prototype.modifyEstimate = function (index, estimate) {
             this.Estimates[index] = estimate;
-            ;
         };
 
         BiWeeklyBudget.prototype.addEstimate = function (estimate) {
