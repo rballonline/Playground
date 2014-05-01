@@ -3,17 +3,7 @@
 	<div class="row">
 		<div class="col-md-12">
 
-			<div data-bind="visible: shareBoxVisible">
-				<textarea data-bind="value: data, selectAll: true" class="form-control" rows="6"></textarea>
-				Click text box and CTRL+C to copy
-			</div>
-			<div data-bind="visible: loadBoxVisible">
-				<textarea data-bind="value: dataToLoad, valueUpdate: 'input'" class="form-control" placeholder="Paste data here" rows="6"></textarea><br />
-				CTRL+V to paste and load the data
-			</div>
-			<button class="btn btn-default" data-bind="click: showShareBox">Share Data</button> <button class="btn btn-default" data-bind="click: showLoadBox">Load Data</button>
-
-			<h2>Current Period (<span data-bind="text: currentPayPeriodStart"></span> - <span data-bind="text: currentPayPeriodEnd"></span>)</h2>
+			<h2>Current Period (<span data-bind="text: firstPayPeriodStart"></span> - <span data-bind="text: firstPayPeriodEnd"></span>)</h2>
 			<div class="table-responsive">
 				<table class="table">
 					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
@@ -23,10 +13,10 @@
 							<td><input placeholder="Starting Amount" type="number" data-bind="value: startingAmount, valueUpdate: 'input'" class="form-control number" /></td>
 							<td></td>
 						</tr>
-						<!-- ko template: { name: 'transaction-template', data: currentPeriod } --><!-- /ko -->
+						<!-- ko template: { name: 'transaction-template', data: firstPeriod } --><!-- /ko -->
 					</tbody>
 					<tfoot>
-						<!-- ko template: { name: 'balance-template', data: currentPeriodSubTotal } --><!-- /ko -->
+						<!-- ko template: { name: 'balance-template', data: firstPeriodSubTotal } --><!-- /ko -->
 					</tfoot>
 				</table>
 				<h3>Estimates</h3>
@@ -64,14 +54,14 @@
 						</tr>
 					</tbody>
 					<tfoot>
-						<!-- ko template: { name: 'balance-template', data: currentPeriodDetails } --><!-- /ko -->
+						<!-- ko template: { name: 'balance-template', data: firstPeriodEnding } --><!-- /ko -->
 					</tfoot>
 				</table>
 			</div>
 
 			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
-			<h2>Next Period (<span data-bind="text: nextPayPeriodStart"></span> - <span data-bind="text: nextPayPeriodEnd"></span>)</h2>
+			<h2>Next Period (<span data-bind="text: secondPayPeriodStart"></span> - <span data-bind="text: secondPayPeriodEnd"></span>)</h2>
 			<div class="table-responsive">
 				<table class="table">
 					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
@@ -83,20 +73,20 @@
 						</tr>
 						<tr class="info">
 							<td colspan="2" class="number">Starting Balance</td>
-							<td data-bind="text: nextPeriodStarting" class="number"></td>
+							<td data-bind="text: secondPeriodStarting" class="number"></td>
 							<td></td>
 						</tr>
-						<!-- ko template: { name: 'transaction-template', data: nextPeriod } --><!-- /ko -->
+						<!-- ko template: { name: 'transaction-template', data: secondPeriod } --><!-- /ko -->
 					</tbody>
 					<tfoot>
-						<!-- ko template: { name: 'balance-template', data: nextPeriodDetails } --><!-- /ko -->
+						<!-- ko template: { name: 'balance-template', data: secondPeriodEnding } --><!-- /ko -->
 					</tfoot>
 				</table>
 			</div>
 
 			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
 
-			<h2>After 4 weeks (<span data-bind="text: afterPayDate"></span>+)</h2>
+			<h2>After 4 weeks (<span data-bind="text: thirdPayDate"></span>+)</h2>
 			<div class="table-responsive">
 				<table class="table">
 					<!-- ko template: { name: 'table-header' } --><!-- /ko -->
@@ -108,18 +98,19 @@
 						</tr>
 						<tr class="info">
 							<td colspan="2" class="number">Starting Balance</td>
-							<td data-bind="text: afterPeriodStarting" class="number"></td>
+							<td data-bind="text: thirdPeriodStarting" class="number"></td>
 							<td></td>
 						</tr>
-						<!-- ko template: { name: 'transaction-template', data: afterPeriod } --><!-- /ko -->
+						<!-- ko template: { name: 'transaction-template', data: thirdPeriod } --><!-- /ko -->
 					</tbody>
 					<tfoot>
-						<!-- ko template: { name: 'balance-template', data: afterPeriodDetails } --><!-- /ko -->
+						<!-- ko template: { name: 'balance-template', data: thirdPeriodEnding } --><!-- /ko -->
 					</tfoot>
 				</table>
 			</div>
 
 			<!-- ko template: { name: 'addTx-template' }--><!-- /ko -->
+
 			<!-- ko if: showOffTheBooks -->
 			<h3>Off the books</h3>
 			<div class="table-responsive">
@@ -163,9 +154,9 @@
 	</form>
 </script>
 <script type="text/html" id="balance-template">
-	<tr data-bind="css: { 'success': amount >= 0, 'danger': amount < 0 }">
+	<tr data-bind="css: { 'success': parseFloat($data) >= 0, 'danger': parseFloat($data) < 0 }">
 		<td colspan="2" class="number">Balance</td>
-		<td class="number" data-bind="text: amount.toFixed(2)"></td>
+		<td class="number" data-bind="text: $data"></td>
 		<td></td>
 	</tr>
 </script>

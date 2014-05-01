@@ -111,54 +111,54 @@
 
         beforeEach(function () {
             b = new budget.BiWeeklyBudget('01/15/2050');
-            b.setStartingAmount(200);
+            amplify.publish('updating-starting-amount', 200);
         });
 
         it('1st period ending balance should be correct', function () {
             expect(b.getEndingBalance(1)).toBe(200);
 
-            b.addTransaction(new budget.Transaction(1, '', 5)); // 1
-            b.addTransaction(new budget.Transaction(2, '', 10)); // 1
-            b.addTransaction(new budget.Transaction(14, '', 5)); // 1
-            b.addTransaction(new budget.Transaction(15, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(18, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(28, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(29, '', 10)); // 3
-            b.addTransaction(new budget.Transaction(30, '', 10)); // 3
+            b.manageTransaction(new budget.Transaction(1, '', 5)); // 1
+            b.manageTransaction(new budget.Transaction(2, '', 10)); // 1
+            b.manageTransaction(new budget.Transaction(14, '', 5)); // 1
+            b.manageTransaction(new budget.Transaction(15, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(18, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(28, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(29, '', 10)); // 3
+            b.manageTransaction(new budget.Transaction(30, '', 10)); // 3
 
             expect(b.getEndingBalance(1)).toBe(180);
 
-            b.addEstimate(new budget.Estimate('', 50));
+            b.manageEstimate(new budget.Estimate('', 50));
 
             expect(b.getEndingBalance(1)).toBe(130);
         });
 
         it('2nd period ending balance should be correct', function () {
-            b.addTransaction(new budget.Transaction(2, '', 10)); // 1
-            b.addTransaction(new budget.Transaction(15, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(18, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(28, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(29, '', 10)); // 3
-            b.addTransaction(new budget.Transaction(30, '', 10)); // 3
+            b.manageTransaction(new budget.Transaction(2, '', 10)); // 1
+            b.manageTransaction(new budget.Transaction(15, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(18, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(28, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(29, '', 10)); // 3
+            b.manageTransaction(new budget.Transaction(30, '', 10)); // 3
 
             expect(b.getEndingBalance(2)).toBe(160);
 
-            b.addEstimate(new budget.Estimate('', 10));
+            b.manageEstimate(new budget.Estimate('', 10));
 
             expect(b.getEndingBalance(2)).toBe(150);
         });
 
         it('3rd period ending balance should be correct', function () {
-            b.addTransaction(new budget.Transaction(2, '', 10)); // 1
-            b.addTransaction(new budget.Transaction(15, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(18, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(28, '', 10)); // 2
-            b.addTransaction(new budget.Transaction(29, '', 10)); // 3
-            b.addTransaction(new budget.Transaction(30, '', 10)); // 3
+            b.manageTransaction(new budget.Transaction(2, '', 10)); // 1
+            b.manageTransaction(new budget.Transaction(15, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(18, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(28, '', 10)); // 2
+            b.manageTransaction(new budget.Transaction(29, '', 10)); // 3
+            b.manageTransaction(new budget.Transaction(30, '', 10)); // 3
 
             expect(b.getEndingBalance(3)).toBe(140);
 
-            b.addEstimate(new budget.Estimate('', 10));
+            b.manageEstimate(new budget.Estimate('', 10));
 
             expect(b.getEndingBalance(3)).toBe(130);
         });

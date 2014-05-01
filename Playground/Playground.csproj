@@ -146,7 +146,11 @@
     <Content Include="Content\jasmine.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\almond-custom.js" />
+    <None Include="Scripts\amplify-vsdoc.js" />
+    <Content Include="Scripts\amplify.js" />
+    <Content Include="Scripts\amplify.min.js" />
     <Content Include="Scripts\blanket.min.js" />
+    <Content Include="Scripts\blanket_jasmine.min.js" />
     <Content Include="Scripts\boot.js" />
     <Content Include="Scripts\console.js" />
     <Content Include="Scripts\domReady.js" />
@@ -166,7 +170,6 @@
     <Content Include="Scripts\durandal\transitions\entrance.js" />
     <Content Include="Scripts\durandal\viewEngine.js" />
     <Content Include="Scripts\durandal\viewLocator.js" />
-    <Content Include="Scripts\jasmine-blanket.js" />
     <Content Include="Scripts\jasmine-html.js" />
     <Content Include="Scripts\jasmine.css" />
     <Content Include="Scripts\jasmine.js" />
@@ -210,7 +213,8 @@
     <TypeScriptCompile Include="App\modules\payPeriods.ts" />
     <TypeScriptCompile Include="App\dashboard.ts" />
     <TypeScriptCompile Include="App\savings.ts" />
-    <TypeScriptCompile Include="App\specs.ts" />
+    <TypeScriptCompile Include="App\tests\specs.ts" />
+    <TypeScriptCompile Include="Scripts\typings\amplifyjs\amplifyjs.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\durandal\durandal.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />

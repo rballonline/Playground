@@ -798,7 +798,11 @@ declare module _ {
 		**/
 		remove(
 			array: List<any>,
-			wherealue?: Dictionary<any>): any[];
+            wherealue?: Dictionary<any>): any[];
+        remove<T>(
+            array: List<T>,
+            callback?: ListIterator<T, boolean>,
+            thisArg?: T): T[];
 	}
 
 	//_.rest
