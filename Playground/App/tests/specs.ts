@@ -119,14 +119,14 @@ describe('Bi-weekly budget', () => {
     it('1st period ending balance should be correct', () => {
         expect(b.getEndingBalance(1)).toBe(200);
 
-        b.manageTransaction(new budget.Transaction(1, '', 5)); // 1
-        b.manageTransaction(new budget.Transaction(2, '', 10)); // 1
-        b.manageTransaction(new budget.Transaction(14, '', 5)); // 1
-        b.manageTransaction(new budget.Transaction(15, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(18, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(28, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(29, '', 10)); // 3
-        b.manageTransaction(new budget.Transaction(30, '', 10)); // 3
+        amplify.publish('updating-transaction', new budget.Transaction(1, '', 5)); // 1
+        amplify.publish('updating-transaction', new budget.Transaction(2, '', 10)); // 1
+        amplify.publish('updating-transaction', new budget.Transaction(14, '', 5)); // 1
+        amplify.publish('updating-transaction', new budget.Transaction(15, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(18, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(28, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(29, '', 10)); // 3
+        amplify.publish('updating-transaction', new budget.Transaction(30, '', 10)); // 3
 
         expect(b.getEndingBalance(1)).toBe(180);
 
@@ -136,12 +136,12 @@ describe('Bi-weekly budget', () => {
     });
 
     it('2nd period ending balance should be correct', () => {
-        b.manageTransaction(new budget.Transaction(2, '', 10)); // 1
-        b.manageTransaction(new budget.Transaction(15, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(18, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(28, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(29, '', 10)); // 3
-        b.manageTransaction(new budget.Transaction(30, '', 10)); // 3
+        amplify.publish('updating-transaction', new budget.Transaction(2, '', 10)); // 1
+        amplify.publish('updating-transaction', new budget.Transaction(15, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(18, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(28, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(29, '', 10)); // 3
+        amplify.publish('updating-transaction', new budget.Transaction(30, '', 10)); // 3
 
         expect(b.getEndingBalance(2)).toBe(160);
 
@@ -151,12 +151,12 @@ describe('Bi-weekly budget', () => {
     });
 
     it('3rd period ending balance should be correct', () => {
-        b.manageTransaction(new budget.Transaction(2, '', 10)); // 1
-        b.manageTransaction(new budget.Transaction(15, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(18, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(28, '', 10)); // 2
-        b.manageTransaction(new budget.Transaction(29, '', 10)); // 3
-        b.manageTransaction(new budget.Transaction(30, '', 10)); // 3
+        amplify.publish('updating-transaction', new budget.Transaction(2, '', 10)); // 1
+        amplify.publish('updating-transaction', new budget.Transaction(15, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(18, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(28, '', 10)); // 2
+        amplify.publish('updating-transaction', new budget.Transaction(29, '', 10)); // 3
+        amplify.publish('updating-transaction', new budget.Transaction(30, '', 10)); // 3
 
         expect(b.getEndingBalance(3)).toBe(140);
 

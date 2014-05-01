@@ -4,19 +4,21 @@ import _ = require('lodash');
 import moment = require('moment');
 
 // Convention: 
-// add/update -> update UI value
-// add/updat(ing) -> subscribe on observable fires
-// add/updat(ed) -> UI interactions
+// add/update -> update UI value (for observables)
+// add/updat(ing) -> change the value in actual budget
+// add/updat(ed) -> update UI based on budget
 
 class TransactionViewModel {
     forAmount = ko.observable<string>();
     amount = ko.observable<string>();
     day = ko.observable<string>();
+    id: string;
 
     constructor(t: Budget.Transaction) {
+        this.id = t.id;
         this.forAmount(t.isFor);
         this.amount(t.amount.toFixed(2));
-        this.day(t.day.toFixed(2));
+        this.day(t.day.toString());
 
         this.forAmount.subscribe((newValue) => {
             amplify.publish('updating-transaction-is-for', t, newValue);
@@ -61,9 +63,9 @@ class BudgetViewModel {
     thirdPeriodStarting = ko.observable();
     thirdPeriodEnding = ko.observable();
 	
-    firstPeriod = ko.observableArray();
-    secondPeriod = ko.observableArray();
-    thirdPeriod = ko.observableArray();
+    firstPeriod = ko.observableArray<TransactionViewModel>();
+    secondPeriod = ko.observableArray<TransactionViewModel>();
+    thirdPeriod = ko.observableArray<TransactionViewModel>();
     offTheBooks = ko.observableArray();
 
     estimates = ko.observableArray();
@@ -88,16 +90,22 @@ class BudgetViewModel {
         amplify.subscribe('update-paycheck-amount', (newValue) => {
             this.paycheckAmount(newValue);
         });
-        this.paycheckAmount.subscribe((newValue) => {
+        this.paycheckAmount.subscribe((newValue) => {            
             amplify.publish('updating-paycheck-amount', newValue);
         });
         amplify.subscribe('paycheck-amount-updated', () => {
             this.updateTotals();
         });
 
-        // Transaction
-        amplify.subscribe('add-transaction', () => { });
-        amplify.subscribe('transaction-added', () => { });
+        amplify.subscribe('transaction-updated', () => {
+            this.updatePeriods();
+            this.updateTotals();
+        });
+
+        amplify.subscribe('transaction-moved', () => {
+            this.updatePeriods();
+            this.updateTotals();
+        });
     }
 
     addEstimate() {
@@ -105,7 +113,11 @@ class BudgetViewModel {
     }
 
     addTransaction() {
-        amplify.publish('adding-transaction', new Budget.Transaction(parseInt(this.newDay(), 10), this.newFor(), parseFloat(this.newAmount())));
+        amplify.publish('updating-transaction', new Budget.Transaction(parseInt(this.newDay(), 10), this.newFor(), parseFloat(this.newAmount())));
+    }
+
+    removeTransaction(transaction: TransactionViewModel) {
+        amplify.publish('moving-transaction', transaction.id);  
     }
 
     activate = () => {
@@ -113,27 +125,25 @@ class BudgetViewModel {
 
         var payDates = this.budget.payDates;
         this.firstPayPeriodStart(payDates[0].format('MM/DD/YYYY'));
-        this.firstPayPeriodEnd(payDates[1].format('MM/DD/YYYY'));
-        this.secondPayPeriodStart(payDates[1].format('MM/DD/YYYY'));
-        this.secondPayPeriodEnd(payDates[2].format('MM/DD/YYYY'));
-        this.thirdPayDate(payDates[2].format('MM/DD/YYYY'));
+        this.firstPayPeriodEnd(payDates[1].subtract('d', 1).format('MM/DD/YYYY'));
+        this.secondPayPeriodStart(payDates[1].add('d', 1).format('MM/DD/YYYY'));
+        this.secondPayPeriodEnd(payDates[2].subtract('d', 1).format('MM/DD/YYYY'));
+        this.thirdPayDate(payDates[2].add('d', 1).format('MM/DD/YYYY'));
+    }
 
-        this.startingAmount(this.budget.getStartingAmount().toFixed(2));
-        this.paycheckAmount(this.budget.getPaycheckAmount().toFixed(2));
+    private update(period, num) {
+        period.removeAll();
+        _.each(this.budget.getTransactions(num), (transaction: Budget.Transaction) => {
+            period.push(new TransactionViewModel(transaction));
+        });
+    }
 
-        _.each(this.budget.getTransactions(1), (tx) => {
-            this.firstPeriod.push(new TransactionViewModel(tx));
-        });
-        _.each(this.budget.getTransactions(2), (tx) => {
-            this.secondPeriod.push(new TransactionViewModel(tx));
-        });
-        _.each(this.budget.getTransactions(3), (tx) => {
-            this.thirdPeriod.push(new TransactionViewModel(tx));
-        });
+    private updatePeriods() {
+        this.update(this.firstPeriod, 1);
+        this.update(this.secondPeriod, 2);
+        this.update(this.thirdPeriod, 3);
 
         this.offTheBooks(this.budget.getOffTheBooks());
-
-        this.estimates(this.budget.getEstimates());
     }
 
     private updateTotals() {

@@ -2,14 +2,9 @@
 import _ = require('lodash');
 
 export interface Budget {
-    startingAmount: number;
-    payCheckAmount: number;
-
     getEndingBalance(period: number);
     getStartingBalance(period: number);
-    manageTransaction(transaction: Transaction);
-    manageEstimate(estimate: Estimate);
-    manageExpense(estimate: Estimate, amount: number);
+    getTransactions(period: number);
 }
 
 export interface CanTotal {
@@ -70,11 +65,16 @@ export class Estimates {
 
 export class Period {
     transactions: Array<Transaction> = [];
+    period: number;
+    daysInPeriod: Array<number> = [];
     total() { return total(this.transactions) }
-    sort(period: Array<number>) {
+    sort() {
         this.transactions = _.sortBy(this.transactions, (transaction: Transaction) => {
-            return period.indexOf(transaction.day);
+            return this.daysInPeriod.indexOf(transaction.day);
         });
+    }
+    constructor(period: number) {
+        this.period = period;
     }
 }
 
@@ -82,10 +82,10 @@ export class BiWeeklyBudget implements Budget {
     private _estimates = new Estimates();
     private _startingAmount = 0;
     private _payCheckAmount = 0;
-    private _firstPeriod = new Period();
-    private _secondPeriod = new Period();
-    private _thirdPeriod = new Period();
-    private _offTheBooks = new Period();
+    private _firstPeriod = new Period(1);
+    private _secondPeriod = new Period(2);
+    private _thirdPeriod = new Period(3);
+    private _offTheBooks: Array<Transaction> = [];
     private _periods: Array<Array<number>> = [];
     private _payDates: Array<Moment> = [];
 
@@ -93,7 +93,11 @@ export class BiWeeklyBudget implements Budget {
         var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
         this._payDates = biWeeklyPayDateCalculator.getPayDates(firstPayDate);        
         var biWeeklyPayPeriodCalculator = new payPeriods.BiWeeklyPayPeriodCalculator();
-        this._periods = biWeeklyPayPeriodCalculator.getPayPeriods(this._payDates);
+
+        var periods = biWeeklyPayPeriodCalculator.getPayPeriods(this._payDates);
+        this._firstPeriod.daysInPeriod = periods[0];
+        this._secondPeriod.daysInPeriod = periods[1];
+        this._thirdPeriod.daysInPeriod = periods[2];
 
         amplify.subscribe('updating-starting-amount', (newValue) => {
             this._startingAmount = parseFloat(newValue);
@@ -102,6 +106,36 @@ export class BiWeeklyBudget implements Budget {
         });
         amplify.subscribe('updating-paycheck-amount', (newValue) => {
             this._payCheckAmount = parseFloat(newValue);
+            this.save();
+            amplify.publish('paycheck-amount-updated');
+        });
+
+        amplify.subscribe('updating-transaction', (transaction: Transaction) => {
+            var period = this.getPeriod(transaction);
+            var existing = _.find(period.transactions, (t: Transaction) => {
+                return t.id == transaction.id;
+            });
+
+            if (existing) {
+                existing = transaction;
+            }
+            else {
+                period.transactions.push(transaction);
+            }
+            period.sort();
+            this.save();
+            amplify.publish('transaction-updated', period);
+        });
+
+        amplify.subscribe('moving-transaction', (id: string) => {
+            var transaction = this.getTransaction(id);
+            var period = this.getPeriod(transaction);
+            var removed = _.remove<Transaction>(period.transactions, (t) => {
+                return transaction.id == t.id;
+            });
+
+            this._offTheBooks.push(_.first(removed));
+            amplify.publish('transaction-moved', transaction);
         });
     }
 
@@ -111,26 +145,26 @@ export class BiWeeklyBudget implements Budget {
         _.each(this._secondPeriod.transactions, function (t) { transactions.push(t); });
         _.each(this._thirdPeriod.transactions, function (t) { transactions.push(t); });
 
-        amplify.store('data', JSON.stringify({ _startingAmount: this._startingAmount, _payCheckAmount: this._payCheckAmount, transactions: transactions, _offTheBooks: this._offTheBooks.transactions, _estimates: this._estimates.estimates }));
+        amplify.store('data', JSON.stringify({ startingAmount: this._startingAmount, payCheckAmount: this._payCheckAmount, transactions: transactions, offTheBooks: this._offTheBooks, estimates: this._estimates.estimates }));
     }
 
     load() {
         try {
             if (amplify.store('data')) {
                 var data = JSON.parse(amplify.store('data'));
-                this._startingAmount = data._startingAmount;
-                this._payCheckAmount =data._payCheckAmount;
+                this._startingAmount = data.startingAmount;
+                this._payCheckAmount =data.payCheckAmount;
                 this._firstPeriod.transactions = [];
                 this._secondPeriod.transactions = [];
                 this._thirdPeriod.transactions = [];
 
                 _.each(data.transactions, (t: Transaction) => {
-                    this.manageTransaction(t);
+                    amplify.publish('updating-transaction', t);
                 });
-                _.each(data._offTheBooks, (t: Transaction) => {
-                    this._offTheBooks.transactions.push(t);
+                _.each(data.offTheBooks, (t: Transaction) => {
+                    this._offTheBooks.push(t);
                 });
-                _.each(data._estimates, (e: Estimate) => {
+                _.each(data.estimates, (e: Estimate) => {
                     this._estimates.estimates.push(e);
                 });
             }
@@ -193,36 +227,34 @@ export class BiWeeklyBudget implements Budget {
     }
 
     private getPeriod(transaction: Transaction) {
-        if (_.contains(this._periods[0], transaction.day)) {
+        if (_.contains(this._firstPeriod.daysInPeriod, transaction.day)) {
             return this._firstPeriod;
         }
-        else if (_.contains(this._periods[1], transaction.day)) {
+        else if (_.contains(this._secondPeriod.daysInPeriod, transaction.day)) {
             return this._secondPeriod;
         }
         return this._thirdPeriod;
     }
 
     getOffTheBooks() {
-        return this._offTheBooks.transactions;
+        return this._offTheBooks;
     }
 
     getEstimates() {
         return this._estimates.estimates;
     }
 
-    moveTransactionOffTheBooks(transaction: Transaction) {
-        var period = this.getPeriod(transaction);
-        var removed = _.first(_.remove<Transaction>(period.transactions, (t) => {
-            return transaction.id == t.id;
-        }));
-
-        this._offTheBooks.transactions.push(removed);
-    }
-
-    manageTransaction(transaction: Transaction) {
-        var period = this.getPeriod(transaction);
-        period.transactions.push(transaction);
-        amplify.publish('new-transaction', { period: period, transaction: transaction });
+    private getTransaction(id: string) {
+        var transaction = _.find<Transaction>(this._firstPeriod.transactions, (t) => { return t.id == id });
+        if (transaction)
+            return transaction;
+        transaction = _.find<Transaction>(this._secondPeriod.transactions, (t) => { return t.id == id });
+        if (transaction)
+            return transaction;
+        transaction = _.find<Transaction>(this._thirdPeriod.transactions, (t) => { return t.id == id });
+        if (transaction)
+            return transaction;
+        
     }
 
     manageEstimate(estimate: Estimate) {

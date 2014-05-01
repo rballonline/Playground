@@ -50,15 +50,18 @@
     exports.Estimates = Estimates;
 
     var Period = (function () {
-        function Period() {
+        function Period(period) {
             this.transactions = [];
+            this.daysInPeriod = [];
+            this.period = period;
         }
         Period.prototype.total = function () {
             return total(this.transactions);
         };
-        Period.prototype.sort = function (period) {
+        Period.prototype.sort = function () {
+            var _this = this;
             this.transactions = _.sortBy(this.transactions, function (transaction) {
-                return period.indexOf(transaction.day);
+                return _this.daysInPeriod.indexOf(transaction.day);
             });
         };
         return Period;
@@ -71,16 +74,20 @@
             this._estimates = new Estimates();
             this._startingAmount = 0;
             this._payCheckAmount = 0;
-            this._firstPeriod = new Period();
-            this._secondPeriod = new Period();
-            this._thirdPeriod = new Period();
-            this._offTheBooks = new Period();
+            this._firstPeriod = new Period(1);
+            this._secondPeriod = new Period(2);
+            this._thirdPeriod = new Period(3);
+            this._offTheBooks = [];
             this._periods = [];
             this._payDates = [];
             var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
             this._payDates = biWeeklyPayDateCalculator.getPayDates(firstPayDate);
             var biWeeklyPayPeriodCalculator = new payPeriods.BiWeeklyPayPeriodCalculator();
-            this._periods = biWeeklyPayPeriodCalculator.getPayPeriods(this._payDates);
+
+            var periods = biWeeklyPayPeriodCalculator.getPayPeriods(this._payDates);
+            this._firstPeriod.daysInPeriod = periods[0];
+            this._secondPeriod.daysInPeriod = periods[1];
+            this._thirdPeriod.daysInPeriod = periods[2];
 
             amplify.subscribe('updating-starting-amount', function (newValue) {
                 _this._startingAmount = parseFloat(newValue);
@@ -89,6 +96,35 @@
             });
             amplify.subscribe('updating-paycheck-amount', function (newValue) {
                 _this._payCheckAmount = parseFloat(newValue);
+                _this.save();
+                amplify.publish('paycheck-amount-updated');
+            });
+
+            amplify.subscribe('updating-transaction', function (transaction) {
+                var period = _this.getPeriod(transaction);
+                var existing = _.find(period.transactions, function (t) {
+                    return t.id == transaction.id;
+                });
+
+                if (existing) {
+                    existing = transaction;
+                } else {
+                    period.transactions.push(transaction);
+                }
+                period.sort();
+                _this.save();
+                amplify.publish('transaction-updated', period);
+            });
+
+            amplify.subscribe('moving-transaction', function (id) {
+                var transaction = _this.getTransaction(id);
+                var period = _this.getPeriod(transaction);
+                var removed = _.remove(period.transactions, function (t) {
+                    return transaction.id == t.id;
+                });
+
+                _this._offTheBooks.push(_.first(removed));
+                amplify.publish('transaction-moved', transaction);
             });
         }
         BiWeeklyBudget.prototype.save = function () {
@@ -103,7 +139,7 @@
                 transactions.push(t);
             });
 
-            amplify.store('data', JSON.stringify({ _startingAmount: this._startingAmount, _payCheckAmount: this._payCheckAmount, transactions: transactions, _offTheBooks: this._offTheBooks.transactions, _estimates: this._estimates.estimates }));
+            amplify.store('data', JSON.stringify({ startingAmount: this._startingAmount, payCheckAmount: this._payCheckAmount, transactions: transactions, offTheBooks: this._offTheBooks, estimates: this._estimates.estimates }));
         };
 
         BiWeeklyBudget.prototype.load = function () {
@@ -111,19 +147,19 @@
             try  {
                 if (amplify.store('data')) {
                     var data = JSON.parse(amplify.store('data'));
-                    this._startingAmount = data._startingAmount;
-                    this._payCheckAmount = data._payCheckAmount;
+                    this._startingAmount = data.startingAmount;
+                    this._payCheckAmount = data.payCheckAmount;
                     this._firstPeriod.transactions = [];
                     this._secondPeriod.transactions = [];
                     this._thirdPeriod.transactions = [];
 
                     _.each(data.transactions, function (t) {
-                        _this.manageTransaction(t);
+                        amplify.publish('updating-transaction', t);
                     });
-                    _.each(data._offTheBooks, function (t) {
-                        _this._offTheBooks.transactions.push(t);
+                    _.each(data.offTheBooks, function (t) {
+                        _this._offTheBooks.push(t);
                     });
-                    _.each(data._estimates, function (e) {
+                    _.each(data.estimates, function (e) {
                         _this._estimates.estimates.push(e);
                     });
                 }
@@ -186,35 +222,38 @@
         };
 
         BiWeeklyBudget.prototype.getPeriod = function (transaction) {
-            if (_.contains(this._periods[0], transaction.day)) {
+            if (_.contains(this._firstPeriod.daysInPeriod, transaction.day)) {
                 return this._firstPeriod;
-            } else if (_.contains(this._periods[1], transaction.day)) {
+            } else if (_.contains(this._secondPeriod.daysInPeriod, transaction.day)) {
                 return this._secondPeriod;
             }
             return this._thirdPeriod;
         };
 
         BiWeeklyBudget.prototype.getOffTheBooks = function () {
-            return this._offTheBooks.transactions;
+            return this._offTheBooks;
         };
 
         BiWeeklyBudget.prototype.getEstimates = function () {
             return this._estimates.estimates;
         };
 
-        BiWeeklyBudget.prototype.moveTransactionOffTheBooks = function (transaction) {
-            var period = this.getPeriod(transaction);
-            var removed = _.first(_.remove(period.transactions, function (t) {
-                return transaction.id == t.id;
-            }));
-
-            this._offTheBooks.transactions.push(removed);
-        };
-
-        BiWeeklyBudget.prototype.manageTransaction = function (transaction) {
-            var period = this.getPeriod(transaction);
-            period.transactions.push(transaction);
-            amplify.publish('new-transaction', { period: period, transaction: transaction });
+        BiWeeklyBudget.prototype.getTransaction = function (id) {
+            var transaction = _.find(this._firstPeriod.transactions, function (t) {
+                return t.id == id;
+            });
+            if (transaction)
+                return transaction;
+            transaction = _.find(this._secondPeriod.transactions, function (t) {
+                return t.id == id;
+            });
+            if (transaction)
+                return transaction;
+            transaction = _.find(this._thirdPeriod.transactions, function (t) {
+                return t.id == id;
+            });
+            if (transaction)
+                return transaction;
         };
 
         BiWeeklyBudget.prototype.manageEstimate = function (estimate) {
