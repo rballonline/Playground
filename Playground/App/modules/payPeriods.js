@@ -6,7 +6,7 @@
             var payDates = [];
             var payDate = moment(firstPayDate || '4/4/2014');
 
-            while (payDate < moment().startOf('day')) {
+            while (payDate <= moment().startOf('day')) {
                 payDate.add('weeks', 2); // get the next pay date
             }
             payDates.push(moment(payDate.subtract('weeks', 2)));

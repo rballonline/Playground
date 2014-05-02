@@ -1,12 +1,6 @@
 ﻿import payPeriods = require('../modules/payPeriods'); // Need to use modules/pay_periods for all aliases
 import _ = require('lodash');
 
-export interface Budget {
-    getEndingBalance(period: number);
-    getStartingBalance(period: number);
-    getTransactions(period: number);
-}
-
 export interface CanTotal {
     amount: number;
 }
@@ -17,50 +11,57 @@ export interface HasId {
 
 export class Transaction implements CanTotal, HasId {
     day: number;
-    isFor: string;
+    forAmount: string;
     amount: number;
     id: string;
 
-    constructor(day: number, isFor: string, amount: number) {
+    constructor(day: number, forAmount: string, amount: number) {
         this.day = day;
-        this.isFor = isFor;
+        this.forAmount = forAmount;
         this.amount = amount;
         this.id = guid();
     }
 }
 
 export class Expense implements CanTotal, HasId {
-    date: Moment;
+    dateEntered: string;
     amount: number;
     id: string;
+    parentId: string;
 
-    constructor(amount) {
+    constructor(amount, parentId) {
         this.amount = amount;
+        this.parentId = parentId;
         this.id = guid();
-        this.date = moment();
+        this.dateEntered = moment().format('M/D');
     }
 }
 
 export class Estimate implements CanTotal, HasId {
-    name: string;
-    expenses: Array<Expense>;
+    reallyAnEstimate: string;
+    forAmount: string;
+    expenses: Array<Expense> = [];
     amount: number;
-    spent = () => { return total(this.expenses); }
-    amountLeft = () => {
-        return this.amount - this.spent();
-    }
     id: string;
 
-    constructor(name: string, amount: number) {
-        this.name = name;
+    total = () => {
+        return total(this.expenses);
+    }
+    amountLeft = () => {
+        return this.amount - this.total();
+    }
+
+    constructor(forAmount: string, amount: number) {
+        this.forAmount = forAmount;
         this.amount = amount;
         this.id = guid();
+        this.reallyAnEstimate = 'yeah!';
     }
 }
 
 export class Estimates {
     estimates: Array<Estimate> = [];
-    total = () => { return total(this.estimates) };
+    total() { return total(this.estimates); }
 }
 
 export class Period {
@@ -78,8 +79,8 @@ export class Period {
     }
 }
 
-export class BiWeeklyBudget implements Budget {
-    private _estimates = new Estimates();
+export class BiWeeklyBudget {
+    private _estimates = new Estimates(); // hmm not sure about this
     private _startingAmount = 0;
     private _payCheckAmount = 0;
     private _firstPeriod = new Period(1);
@@ -102,29 +103,36 @@ export class BiWeeklyBudget implements Budget {
         amplify.subscribe('updating-starting-amount', (newValue) => {
             this._startingAmount = parseFloat(newValue);
             this.save();
-            amplify.publish('starting-amount-updated');
+            amplify.publish('update-totals');
         });
         amplify.subscribe('updating-paycheck-amount', (newValue) => {
             this._payCheckAmount = parseFloat(newValue);
             this.save();
-            amplify.publish('paycheck-amount-updated');
+            amplify.publish('update-totals');
         });
 
-        amplify.subscribe('updating-transaction', (transaction: Transaction) => {
-            var period = this.getPeriod(transaction);
-            var existing = _.find(period.transactions, (t: Transaction) => {
-                return t.id == transaction.id;
-            });
-
-            if (existing) {
-                existing = transaction;
-            }
-            else {
-                period.transactions.push(transaction);
-            }
-            period.sort();
+        amplify.subscribe('updating-transaction-is-for', (transaction: Transaction, newValue: string) => {
+            transaction.forAmount = newValue;
             this.save();
-            amplify.publish('transaction-updated', period);
+        });
+
+        amplify.subscribe('updating-transaction-amount', (transaction: Transaction, newValue: string) => {
+            transaction.amount = parseFloat(newValue);
+            this.save();
+            amplify.publish('update-totals');
+        });
+
+        amplify.subscribe('updating-transaction-day', (transaction: Transaction, newValue: string) => {
+            // This might be easier if we just had one transactions list...
+            var period = this.getPeriod(transaction);
+            _.remove<Transaction>(period.transactions, (t) => {
+                return transaction.id == t.id;
+            });
+            transaction.day = parseFloat(newValue);
+            var newPeriod = this.getPeriod(transaction);
+            newPeriod.transactions.push(transaction);
+            this.save();
+            amplify.publish('update-periods');
         });
 
         amplify.subscribe('moving-transaction', (id: string) => {
@@ -135,8 +143,17 @@ export class BiWeeklyBudget implements Budget {
             });
 
             this._offTheBooks.push(_.first(removed));
-            amplify.publish('transaction-moved', transaction);
+            this.save();
+            amplify.publish('update-all');
         });
+    }
+
+    addTransaction(transaction: Transaction) {
+        var period = this.getPeriod(transaction);
+        period.transactions.push(transaction);
+        period.sort();
+        this.save();
+        amplify.publish('update-periods', period);
     }
 
     private save() {
@@ -149,6 +166,7 @@ export class BiWeeklyBudget implements Budget {
     }
 
     load() {
+        // NOTE: "new" objects are created because functions on those objects are not stored in json, only properties
         try {
             if (amplify.store('data')) {
                 var data = JSON.parse(amplify.store('data'));
@@ -159,14 +177,17 @@ export class BiWeeklyBudget implements Budget {
                 this._thirdPeriod.transactions = [];
 
                 _.each(data.transactions, (t: Transaction) => {
-                    amplify.publish('updating-transaction', t);
+                    var period = this.getPeriod(t);
+                    period.transactions.push(new Transaction(t.day, t.forAmount, t.amount));
+                    period.sort();
                 });
                 _.each(data.offTheBooks, (t: Transaction) => {
-                    this._offTheBooks.push(t);
+                    this._offTheBooks.push(new Transaction(t.day, t.forAmount, t.amount));
                 });
                 _.each(data.estimates, (e: Estimate) => {
-                    this._estimates.estimates.push(e);
+                    this._estimates.estimates.push(new Estimate(e.forAmount, e.amount));
                 });
+                amplify.publish('update-all');
             }
         }
         catch (e) {
@@ -214,6 +235,7 @@ export class BiWeeklyBudget implements Budget {
     }
     
     getTransactions(period: number) {
+        // might be easier dealing with one list ie (where this.transactions in period 1)
         switch (period) {
             case 1:
                 return this._firstPeriod.transactions;
@@ -224,6 +246,21 @@ export class BiWeeklyBudget implements Budget {
             default:
                 throw 'Invalid period specified. Need 1 - 3, given: ' + period;
         }
+    }
+
+    updateExpenseAmount(expense: Expense, value: string) {
+        expense.amount = parseFloat(value);
+        //amplify.publish('update-estimate');
+    }
+
+    updateEstimateAmount(estimate: Estimate, value: string) {
+        estimate.amount = parseFloat(value);
+        amplify.publish('update-totals');
+    }
+
+    udpateEstimateFor(estimate: Estimate, value: string) {
+        estimate.forAmount = value;
+        this.save();
     }
 
     private getPeriod(transaction: Transaction) {
@@ -240,7 +277,7 @@ export class BiWeeklyBudget implements Budget {
         return this._offTheBooks;
     }
 
-    getEstimates() {
+    getEstimates = () => {
         return this._estimates.estimates;
     }
 
@@ -257,21 +294,27 @@ export class BiWeeklyBudget implements Budget {
         
     }
 
-    manageEstimate(estimate: Estimate) {
-        var estimateToUpdate = _.find(this._estimates.estimates, (e: Estimate) => {
-            return e.id = estimate.id;
-        });
-
-        if (estimateToUpdate) {
-            estimateToUpdate = estimate;
-        }
-        else {
-            this._estimates.estimates.push(estimate);
-        }
-        amplify.publish('estimate-updated', estimateToUpdate);
+    addEstimate(estimate: Estimate) {
+        this._estimates.estimates.push(estimate);
+        this.save();
+        amplify.publish('update-estimates');
     }
 
-    manageExpense(estimate: Estimate, amount: number) {
+    removeEstimate(id: string) {
+        _.remove<Estimate>(this._estimates.estimates, (e) => {
+            return e.id == id;
+        });
+        this.save();
+        amplify.publish('update-estimates');
+    }
+
+    addExpense(id: string, amount: string) {
+        var estimate = _.find<Estimate>(this._estimates.estimates, (estimate) => {
+            return estimate.id == id;
+        });
+        estimate.expenses.push(new Expense(parseFloat(amount), estimate.id));
+        this.save();
+        amplify.publish('update-estimate', estimate);
     }
 }
 

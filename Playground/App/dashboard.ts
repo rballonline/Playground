@@ -3,10 +3,9 @@ import ko = require('knockout');
 import _ = require('lodash');
 import moment = require('moment');
 
-// Convention: 
-// add/update -> update UI value (for observables)
-// add/updat(ing) -> change the value in actual budget
-// add/updat(ed) -> update UI based on budget
+var budget = new Budget.BiWeeklyBudget();
+
+//TODO: Expenses are not adding
 
 class TransactionViewModel {
     forAmount = ko.observable<string>();
@@ -16,7 +15,7 @@ class TransactionViewModel {
 
     constructor(t: Budget.Transaction) {
         this.id = t.id;
-        this.forAmount(t.isFor);
+        this.forAmount(t.forAmount);
         this.amount(t.amount.toFixed(2));
         this.day(t.day.toString());
 
@@ -34,8 +33,55 @@ class TransactionViewModel {
     }
 }
 
+class ExpenseViewModel {
+    id: string;
+    parentId: string;
+    dateEntered: string;
+    amount = ko.observable<string>();
+
+    constructor(expense: Budget.Expense) {
+        this.id = expense.id;
+        this.parentId = expense.parentId;
+        this.dateEntered = expense.dateEntered;
+        this.amount(expense.amount.toFixed(2));
+
+        this.amount.subscribe((value) => {
+            budget.updateExpenseAmount(expense, value);
+        });
+    }
+}
+
+class EstimateViewModel {
+    id: string;
+    forAmount = ko.observable<string>();
+    amount = ko.observable<string>();
+    amountLeft = ko.observable<string>();
+    total = ko.observable<string>();
+    expenses = ko.observableArray<ExpenseViewModel>();
+    newExpenseAmount = ko.observable<string>();
+
+    constructor(estimate: Budget.Estimate) {
+        this.id = estimate.id;
+        this.forAmount(estimate.forAmount);
+        this.amount(estimate.amount.toFixed(2));
+        this.amountLeft(estimate.amountLeft().toFixed(2));
+        this.total(estimate.total().toFixed(2));
+
+        this.amount.subscribe((value) => {
+            budget.updateEstimateAmount(estimate, value);
+        });
+
+        this.forAmount.subscribe((value) => {
+            budget.udpateEstimateFor(estimate, value);
+        });
+
+        _.each(estimate.expenses, (expense: Budget.Expense) => {
+            this.expenses.push(new ExpenseViewModel(expense));
+        });
+    }
+}
+
 class BudgetViewModel {
-    private budget = new Budget.BiWeeklyBudget();
 
     pageLoaded = false;
 
@@ -54,7 +100,6 @@ class BudgetViewModel {
     
 	newEstimateFor = ko.observable<string>();
     newEstimateAmount = ko.observable<string>();
-    newEstimateExpenseAmount = ko.observable<string>();
 
     firstPeriodSubTotal = ko.observable();
     firstPeriodEnding = ko.observable();
@@ -71,7 +116,7 @@ class BudgetViewModel {
     estimates = ko.observableArray();
 
     showOffTheBooks = ko.computed(() => {
-        return this.offTheBooks.length > 0;
+        return this.offTheBooks().length > 0;
     });
 
     constructor() {
@@ -82,9 +127,6 @@ class BudgetViewModel {
         this.startingAmount.subscribe((newValue) => {
             amplify.publish('updating-starting-amount', newValue);
         });
-        amplify.subscribe('starting-amount-updated', () => {
-            this.updateTotals();
-        });
 
         // Paycheck amount
         amplify.subscribe('update-paycheck-amount', (newValue) => {
@@ -93,66 +135,101 @@ class BudgetViewModel {
         this.paycheckAmount.subscribe((newValue) => {            
             amplify.publish('updating-paycheck-amount', newValue);
         });
-        amplify.subscribe('paycheck-amount-updated', () => {
-            this.updateTotals();
+
+        amplify.subscribe('update-estimate', (estimate: Budget.Estimate) => {
+            var estimateVm = _.find(this.estimates(), (e : EstimateViewModel) => {
+                return estimate.id == e.id;
+            });
+            estimateVm = new EstimateViewModel(estimate);
         });
 
-        amplify.subscribe('transaction-updated', () => {
+        amplify.subscribe('update-estimates', () => {
+            this.updateEstimates();
+        });
+        amplify.subscribe('update-totals', () => {
+            this.updateTotals();
+        });
+        amplify.subscribe('update-periods', () => {
             this.updatePeriods();
-            this.updateTotals();
         });
-
-        amplify.subscribe('transaction-moved', () => {
-            this.updatePeriods();
-            this.updateTotals();
+        amplify.subscribe('update-all', () => {
+            this.updateAll();
         });
-    }
-
-    addEstimate() {
-        this.budget.manageEstimate(new Budget.Estimate(this.newEstimateFor(), parseFloat(this.newEstimateAmount())));
     }
 
     addTransaction() {
-        amplify.publish('updating-transaction', new Budget.Transaction(parseInt(this.newDay(), 10), this.newFor(), parseFloat(this.newAmount())));
+        budget.addTransaction(new Budget.Transaction(parseInt(this.newDay(), 10), this.newFor(), parseFloat(this.newAmount())));
     }
 
-    removeTransaction(transaction: TransactionViewModel) {
+    addEstimate() {
+        var estimate = new Budget.Estimate(this.newEstimateFor(), parseFloat(this.newEstimateAmount()));
+        budget.addEstimate(estimate);
+    }
+
+    addExpense(estimate: EstimateViewModel) {
+        budget.addExpense(estimate.id, estimate.newExpenseAmount());
+    }
+
+    moveTransaction(transaction: TransactionViewModel) {
         amplify.publish('moving-transaction', transaction.id);  
     }
 
-    activate = () => {
-        this.budget.load();
+    removeEstimate(estimate: EstimateViewModel) {
+        budget.removeEstimate(estimate.id);
+    }
 
-        var payDates = this.budget.payDates;
+    activate = () => {
+        budget.load();
+
+        var payDates = budget.payDates;
         this.firstPayPeriodStart(payDates[0].format('MM/DD/YYYY'));
         this.firstPayPeriodEnd(payDates[1].subtract('d', 1).format('MM/DD/YYYY'));
         this.secondPayPeriodStart(payDates[1].add('d', 1).format('MM/DD/YYYY'));
         this.secondPayPeriodEnd(payDates[2].subtract('d', 1).format('MM/DD/YYYY'));
         this.thirdPayDate(payDates[2].add('d', 1).format('MM/DD/YYYY'));
+        this.startingAmount(budget.getStartingAmount().toFixed(2));
+        this.paycheckAmount(budget.getPaycheckAmount().toFixed(2));
     }
 
     private update(period, num) {
         period.removeAll();
-        _.each(this.budget.getTransactions(num), (transaction: Budget.Transaction) => {
+        _.each(budget.getTransactions(num), (transaction: Budget.Transaction) => {
             period.push(new TransactionViewModel(transaction));
         });
+    }
+
+    private updateAll() {
+        this.updateOffTheBooks();
+        this.updateEstimates();
+        this.updatePeriods();
     }
 
     private updatePeriods() {
         this.update(this.firstPeriod, 1);
         this.update(this.secondPeriod, 2);
         this.update(this.thirdPeriod, 3);
+        this.updateTotals();
+    }
 
-        this.offTheBooks(this.budget.getOffTheBooks());
+    private updateOffTheBooks() {
+        this.offTheBooks(budget.getOffTheBooks());
+    }
+
+    private updateEstimates() {
+        this.estimates.removeAll();
+        _.each(budget.getEstimates(), (estimate: Budget.Estimate) => {
+            this.estimates.push(new EstimateViewModel(estimate));
+        });
+        this.updateTotals();
     }
 
     private updateTotals() {
-        this.firstPeriodSubTotal(this.budget.getEndingBalance(0).toFixed(2));
-        this.firstPeriodEnding(this.budget.getEndingBalance(1).toFixed(2));
-        this.secondPeriodStarting(this.budget.getStartingBalance(2).toFixed(2));
-        this.secondPeriodEnding(this.budget.getEndingBalance(2).toFixed(2));
-        this.thirdPeriodStarting(this.budget.getStartingBalance(3).toFixed(2));
-        this.thirdPeriodEnding(this.budget.getEndingBalance(3).toFixed(2));
+        this.firstPeriodSubTotal(budget.getEndingBalance(0).toFixed(2));
+        this.firstPeriodEnding(budget.getEndingBalance(1).toFixed(2));
+        this.secondPeriodStarting(budget.getStartingBalance(2).toFixed(2));
+        this.secondPeriodEnding(budget.getEndingBalance(2).toFixed(2));
+        this.thirdPeriodStarting(budget.getStartingBalance(3).toFixed(2));
+        this.thirdPeriodEnding(budget.getEndingBalance(3).toFixed(2));
     }
 }
 return new BudgetViewModel();

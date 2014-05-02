@@ -27,8 +27,8 @@
 							<td class="col-xs-7" colspan="2"><input data-bind="value: forAmount, valueUpdate: 'input'" class="form-control" /></td>
 							<td class="col-xs-2">
 								<input type="number" data-bind="value: amount, valueUpdate: 'input'" class="number form-control" />
-								Amount Left: <span data-bind="text: amountLeft().toFixed(2)"></span><br />
-								Actual: <span data-bind="text: total().toFixed(2)"></span>
+								Amount Left: <span data-bind="text: amountLeft"></span><br />
+								Actual: <span data-bind="text: total"></span>
 							</td>
 							<td class="col-xs-2">
 								<button class="btn btn-danger btn-block" data-bind="click: $parent.removeEstimate"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE ESTIMATE</span></button>
@@ -36,15 +36,15 @@
 						</tr>
 						<!-- ko foreach: expenses -->
 						<tr>
-							<td data-bind="text: dateEntered.format('M/D')" class="number" colspan="2"></td>
+							<td data-bind="text: dateEntered" class="number" colspan="2"></td>
 							<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
 							<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeEstimateExpense.bind({ estimate: $parent, expense: $data})"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE EXPENSE</span></button></td>
 						</tr>
 						<!-- /ko -->
 						<tr>
 							<td colspan="2"></td>
-							<td><input type="number" data-bind="value: $parent.newEstimateExpenseAmount, valueUpdate: 'input'" class="form-control number" /></td>
-							<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addEstimateExpense"><span class="glyphicon glyphicon-plus"></span> <span class="hidden-sm hidden-xs">ADD EXPENSE</span></button></td>
+							<td><input type="number" data-bind="value: newExpenseAmount, valueUpdate: 'input'" class="form-control number" /></td>
+							<td><button class="btn btn-warning btn-block" data-bind="click: $parent.addExpense"><span class="glyphicon glyphicon-plus"></span> <span class="hidden-sm hidden-xs">ADD EXPENSE</span></button></td>
 						</tr>
 						<!-- /ko -->
 						<tr>
@@ -124,7 +124,7 @@
 							<td><span data-bind="text: day"></span></td>
 							<td data-bind="text: forAmount"></td>
 							<td><span data-bind="text: amount"></span></td>
-							<td><button class="btn btn-danger btn-block" data-bind="click: $parent.removeTransaction"><span class="glyphicon glyphicon-trash"></span>	<span class="hidden-sm hidden-xs">DELETE</span></button></td>
+							<td><button class="btn btn-danger btn-block" data-bind="click: $parent.moveTransaction"><span class="glyphicon glyphicon-trash"></span>	<span class="hidden-sm hidden-xs">DELETE</span></button></td>
 						</tr>
 					</tbody>
 				</table>

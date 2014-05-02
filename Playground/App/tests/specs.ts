@@ -1,5 +1,5 @@
 ﻿import PayPeriods = require('modules/payPeriods');
-import budget = require('modules/budget');
+import Budget = require('modules/budget');
 
 describe("For the bi weekly pay dates", function () {
     var biWeeklyPayDateCalculator = new PayPeriods.BiWeeklyPayDateCalculator();
@@ -112,55 +112,55 @@ describe('Bi-weekly budget', () => {
     var b;
 
     beforeEach(() => {
-        b = new budget.BiWeeklyBudget('01/15/2050');
+        b = new Budget.BiWeeklyBudget('01/15/2050');
         amplify.publish('updating-starting-amount', 200);
     });
 
     it('1st period ending balance should be correct', () => {
         expect(b.getEndingBalance(1)).toBe(200);
 
-        amplify.publish('updating-transaction', new budget.Transaction(1, '', 5)); // 1
-        amplify.publish('updating-transaction', new budget.Transaction(2, '', 10)); // 1
-        amplify.publish('updating-transaction', new budget.Transaction(14, '', 5)); // 1
-        amplify.publish('updating-transaction', new budget.Transaction(15, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(18, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(28, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(29, '', 10)); // 3
-        amplify.publish('updating-transaction', new budget.Transaction(30, '', 10)); // 3
+        b.addTransaction(new Budget.Transaction(1, '', 5)); // 1
+        b.addTransaction(new Budget.Transaction(2, '', 10)); // 1
+        b.addTransaction(new Budget.Transaction(14, '', 5)); // 1
+        b.addTransaction(new Budget.Transaction(15, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(18, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(28, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(29, '', 10)); // 3
+        b.addTransaction(new Budget.Transaction(30, '', 10)); // 3
 
         expect(b.getEndingBalance(1)).toBe(180);
 
-        b.manageEstimate(new budget.Estimate('', 50));
+        b.manageEstimate(new Budget.Estimate('', 50));
 
         expect(b.getEndingBalance(1)).toBe(130);
     });
 
     it('2nd period ending balance should be correct', () => {
-        amplify.publish('updating-transaction', new budget.Transaction(2, '', 10)); // 1
-        amplify.publish('updating-transaction', new budget.Transaction(15, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(18, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(28, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(29, '', 10)); // 3
-        amplify.publish('updating-transaction', new budget.Transaction(30, '', 10)); // 3
+        b.addTransaction(new Budget.Transaction(2, '', 10)); // 1
+        b.addTransaction(new Budget.Transaction(15, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(18, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(28, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(29, '', 10)); // 3
+        b.addTransaction(new Budget.Transaction(30, '', 10)); // 3
 
         expect(b.getEndingBalance(2)).toBe(160);
 
-        b.manageEstimate(new budget.Estimate('', 10));
+        b.manageEstimate(new Budget.Estimate('', 10));
 
         expect(b.getEndingBalance(2)).toBe(150);
     });
 
     it('3rd period ending balance should be correct', () => {
-        amplify.publish('updating-transaction', new budget.Transaction(2, '', 10)); // 1
-        amplify.publish('updating-transaction', new budget.Transaction(15, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(18, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(28, '', 10)); // 2
-        amplify.publish('updating-transaction', new budget.Transaction(29, '', 10)); // 3
-        amplify.publish('updating-transaction', new budget.Transaction(30, '', 10)); // 3
+        b.addTransaction(new Budget.Transaction(2, '', 10)); // 1
+        b.addTransaction(new Budget.Transaction(15, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(18, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(28, '', 10)); // 2
+        b.addTransaction(new Budget.Transaction(29, '', 10)); // 3
+        b.addTransaction(new Budget.Transaction(30, '', 10)); // 3
 
         expect(b.getEndingBalance(3)).toBe(140);
 
-        b.manageEstimate(new budget.Estimate('', 10));
+        b.manageEstimate(new Budget.Estimate('', 10));
 
         expect(b.getEndingBalance(3)).toBe(130);
     });

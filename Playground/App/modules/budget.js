@@ -1,8 +1,8 @@
 ﻿define(["require", "exports", '../modules/payPeriods', 'lodash'], function(require, exports, payPeriods, _) {
     var Transaction = (function () {
-        function Transaction(day, isFor, amount) {
+        function Transaction(day, forAmount, amount) {
             this.day = day;
-            this.isFor = isFor;
+            this.forAmount = forAmount;
             this.amount = amount;
             this.id = guid();
         }
@@ -11,27 +11,30 @@
     exports.Transaction = Transaction;
 
     var Expense = (function () {
-        function Expense(amount) {
+        function Expense(amount, parentId) {
             this.amount = amount;
+            this.parentId = parentId;
             this.id = guid();
-            this.date = moment();
+            this.dateEntered = moment().format('M/D');
         }
         return Expense;
     })();
     exports.Expense = Expense;
 
     var Estimate = (function () {
-        function Estimate(name, amount) {
+        function Estimate(forAmount, amount) {
             var _this = this;
-            this.spent = function () {
+            this.expenses = [];
+            this.total = function () {
                 return total(_this.expenses);
             };
             this.amountLeft = function () {
-                return _this.amount - _this.spent();
+                return _this.amount - _this.total();
             };
-            this.name = name;
+            this.forAmount = forAmount;
             this.amount = amount;
             this.id = guid();
+            this.reallyAnEstimate = 'yeah!';
         }
         return Estimate;
     })();
@@ -39,12 +42,11 @@
 
     var Estimates = (function () {
         function Estimates() {
-            var _this = this;
             this.estimates = [];
-            this.total = function () {
-                return total(_this.estimates);
-            };
         }
+        Estimates.prototype.total = function () {
+            return total(this.estimates);
+        };
         return Estimates;
     })();
     exports.Estimates = Estimates;
@@ -80,6 +82,9 @@
             this._offTheBooks = [];
             this._periods = [];
             this._payDates = [];
+            this.getEstimates = function () {
+                return _this._estimates.estimates;
+            };
             var biWeeklyPayDateCalculator = new payPeriods.BiWeeklyPayDateCalculator();
             this._payDates = biWeeklyPayDateCalculator.getPayDates(firstPayDate);
             var biWeeklyPayPeriodCalculator = new payPeriods.BiWeeklyPayPeriodCalculator();
@@ -92,28 +97,36 @@
             amplify.subscribe('updating-starting-amount', function (newValue) {
                 _this._startingAmount = parseFloat(newValue);
                 _this.save();
-                amplify.publish('starting-amount-updated');
+                amplify.publish('update-totals');
             });
             amplify.subscribe('updating-paycheck-amount', function (newValue) {
                 _this._payCheckAmount = parseFloat(newValue);
                 _this.save();
-                amplify.publish('paycheck-amount-updated');
+                amplify.publish('update-totals');
             });
 
-            amplify.subscribe('updating-transaction', function (transaction) {
-                var period = _this.getPeriod(transaction);
-                var existing = _.find(period.transactions, function (t) {
-                    return t.id == transaction.id;
-                });
-
-                if (existing) {
-                    existing = transaction;
-                } else {
-                    period.transactions.push(transaction);
-                }
-                period.sort();
+            amplify.subscribe('updating-transaction-is-for', function (transaction, newValue) {
+                transaction.forAmount = newValue;
                 _this.save();
-                amplify.publish('transaction-updated', period);
+            });
+
+            amplify.subscribe('updating-transaction-amount', function (transaction, newValue) {
+                transaction.amount = parseFloat(newValue);
+                _this.save();
+                amplify.publish('update-totals');
+            });
+
+            amplify.subscribe('updating-transaction-day', function (transaction, newValue) {
+                // This might be easier if we just had one transactions list...
+                var period = _this.getPeriod(transaction);
+                _.remove(period.transactions, function (t) {
+                    return transaction.id == t.id;
+                });
+                transaction.day = parseFloat(newValue);
+                var newPeriod = _this.getPeriod(transaction);
+                newPeriod.transactions.push(transaction);
+                _this.save();
+                amplify.publish('update-periods');
             });
 
             amplify.subscribe('moving-transaction', function (id) {
@@ -124,9 +137,18 @@
                 });
 
                 _this._offTheBooks.push(_.first(removed));
-                amplify.publish('transaction-moved', transaction);
+                _this.save();
+                amplify.publish('update-all');
             });
         }
+        BiWeeklyBudget.prototype.addTransaction = function (transaction) {
+            var period = this.getPeriod(transaction);
+            period.transactions.push(transaction);
+            period.sort();
+            this.save();
+            amplify.publish('update-periods', period);
+        };
+
         BiWeeklyBudget.prototype.save = function () {
             var transactions = [];
             _.each(this._firstPeriod.transactions, function (t) {
@@ -154,14 +176,17 @@
                     this._thirdPeriod.transactions = [];
 
                     _.each(data.transactions, function (t) {
-                        amplify.publish('updating-transaction', t);
+                        var period = _this.getPeriod(t);
+                        period.transactions.push(new Transaction(t.day, t.forAmount, t.amount));
+                        period.sort();
                     });
                     _.each(data.offTheBooks, function (t) {
-                        _this._offTheBooks.push(t);
+                        _this._offTheBooks.push(new Transaction(t.day, t.forAmount, t.amount));
                     });
                     _.each(data.estimates, function (e) {
-                        _this._estimates.estimates.push(e);
+                        _this._estimates.estimates.push(new Estimate(e.forAmount, e.amount));
                     });
+                    amplify.publish('update-all');
                 }
             } catch (e) {
                 localStorage.removeItem('data');
@@ -221,6 +246,21 @@
             }
         };
 
+        BiWeeklyBudget.prototype.updateExpenseAmount = function (expense, value) {
+            expense.amount = parseFloat(value);
+            //amplify.publish('update-estimate');
+        };
+
+        BiWeeklyBudget.prototype.updateEstimateAmount = function (estimate, value) {
+            estimate.amount = parseFloat(value);
+            amplify.publish('update-totals');
+        };
+
+        BiWeeklyBudget.prototype.udpateEstimateFor = function (estimate, value) {
+            estimate.forAmount = value;
+            this.save();
+        };
+
         BiWeeklyBudget.prototype.getPeriod = function (transaction) {
             if (_.contains(this._firstPeriod.daysInPeriod, transaction.day)) {
                 return this._firstPeriod;
@@ -232,10 +272,6 @@
 
         BiWeeklyBudget.prototype.getOffTheBooks = function () {
             return this._offTheBooks;
-        };
-
-        BiWeeklyBudget.prototype.getEstimates = function () {
-            return this._estimates.estimates;
         };
 
         BiWeeklyBudget.prototype.getTransaction = function (id) {
@@ -256,20 +292,27 @@
                 return transaction;
         };
 
-        BiWeeklyBudget.prototype.manageEstimate = function (estimate) {
-            var estimateToUpdate = _.find(this._estimates.estimates, function (e) {
-                return e.id = estimate.id;
-            });
-
-            if (estimateToUpdate) {
-                estimateToUpdate = estimate;
-            } else {
-                this._estimates.estimates.push(estimate);
-            }
-            amplify.publish('estimate-updated', estimateToUpdate);
+        BiWeeklyBudget.prototype.addEstimate = function (estimate) {
+            this._estimates.estimates.push(estimate);
+            this.save();
+            amplify.publish('update-estimates');
         };
 
-        BiWeeklyBudget.prototype.manageExpense = function (estimate, amount) {
+        BiWeeklyBudget.prototype.removeEstimate = function (id) {
+            _.remove(this._estimates.estimates, function (e) {
+                return e.id == id;
+            });
+            this.save();
+            amplify.publish('update-estimates');
+        };
+
+        BiWeeklyBudget.prototype.addExpense = function (id, amount) {
+            var estimate = _.find(this._estimates.estimates, function (estimate) {
+                return estimate.id == id;
+            });
+            estimate.expenses.push(new Expense(parseFloat(amount), estimate.id));
+            this.save();
+            amplify.publish('update-estimate', estimate);
         };
         return BiWeeklyBudget;
     })();
