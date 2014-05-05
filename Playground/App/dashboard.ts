@@ -143,6 +143,36 @@ class BudgetViewModel {
             estimateVm = new EstimateViewModel(estimate);
         });
 
+        amplify.subscribe('add-expense', (estimate: Budget.Estimate, expense: Budget.Expense) => {
+            var estimateVm = _.find(this.estimates(), (e: EstimateViewModel) => {
+                return expense.parentId == e.id;
+            });
+            estimateVm.expenses.push(new ExpenseViewModel(expense));
+            updateEstimateValues(estimateVm, estimate);
+        });
+
+        amplify.subscribe('remove-expense', (estimate: Budget.Estimate, expenseId: string) => {
+            var estimateVm = _.find(this.estimates(), (e: EstimateViewModel) => {
+                return estimate.id == e.id;
+            });
+            estimateVm.expenses.remove((expense) => {
+                return expense.id == expenseId;
+            });
+            updateEstimateValues(estimateVm, estimate);
+        });
+
+        amplify.subscribe('modified-expense', (estimate: Budget.Estimate, expense: Budget.Expense) => {
+            var estimateVm = _.find(this.estimates(), (e: EstimateViewModel) => {
+                return expense.parentId == e.id;
+            });
+            updateEstimateValues(estimateVm, estimate);
+        });
+
+        function updateEstimateValues(estimateVm: EstimateViewModel, estimate: Budget.Estimate) {
+            estimateVm.amountLeft(estimate.amountLeft().toFixed(2));
+            estimateVm.total(estimate.total().toFixed(2));
+        }
+
         amplify.subscribe('update-estimates', () => {
             this.updateEstimates();
         });
@@ -168,14 +198,19 @@ class BudgetViewModel {
 
     addExpense(estimate: EstimateViewModel) {
         budget.addExpense(estimate.id, estimate.newExpenseAmount());
+        estimate.newExpenseAmount('');
     }
 
     moveTransaction(transaction: TransactionViewModel) {
-        amplify.publish('moving-transaction', transaction.id);  
+        budget.moveTransaction(transaction.id);
     }
 
     removeEstimate(estimate: EstimateViewModel) {
         budget.removeEstimate(estimate.id);
+    }
+
+    removeExpense(expense: ExpenseViewModel) {
+        budget.removeExpense(expense.parentId, expense.id);
     }
 
     activate = () => {

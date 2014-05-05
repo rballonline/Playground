@@ -38,7 +38,7 @@
 						<tr>
 							<td data-bind="text: dateEntered" class="number" colspan="2"></td>
 							<td><input type="number" data-bind="value: amount, valueUpdate: 'input'" class="form-control number" /></td>
-							<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeEstimateExpense.bind({ estimate: $parent, expense: $data})"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE EXPENSE</span></button></td>
+							<td><button class="btn btn-danger btn-block" data-bind="click: $parents[1].removeExpense"><span class="glyphicon glyphicon-trash"></span> <span class="hidden-sm hidden-xs">REMOVE EXPENSE</span></button></td>
 						</tr>
 						<!-- /ko -->
 						<tr>

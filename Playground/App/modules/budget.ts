@@ -29,7 +29,7 @@ export class Expense implements CanTotal, HasId {
     id: string;
     parentId: string;
 
-    constructor(amount, parentId) {
+    constructor(amount: number, parentId: string) {
         this.amount = amount;
         this.parentId = parentId;
         this.id = guid();
@@ -134,18 +134,6 @@ export class BiWeeklyBudget {
             this.save();
             amplify.publish('update-periods');
         });
-
-        amplify.subscribe('moving-transaction', (id: string) => {
-            var transaction = this.getTransaction(id);
-            var period = this.getPeriod(transaction);
-            var removed = _.remove<Transaction>(period.transactions, (t) => {
-                return transaction.id == t.id;
-            });
-
-            this._offTheBooks.push(_.first(removed));
-            this.save();
-            amplify.publish('update-all');
-        });
     }
 
     addTransaction(transaction: Transaction) {
@@ -185,7 +173,12 @@ export class BiWeeklyBudget {
                     this._offTheBooks.push(new Transaction(t.day, t.forAmount, t.amount));
                 });
                 _.each(data.estimates, (e: Estimate) => {
-                    this._estimates.estimates.push(new Estimate(e.forAmount, e.amount));
+                    var estimate = new Estimate(e.forAmount, e.amount);
+                    this._estimates.estimates.push(estimate);
+
+                    _.each(e.expenses, (ex: Expense) => {
+                        estimate.expenses.push(new Expense(ex.amount, estimate.id));
+                    });
                 });
                 amplify.publish('update-all');
             }
@@ -198,6 +191,18 @@ export class BiWeeklyBudget {
 
     get payDates() {
         return this._payDates;
+    }
+
+    moveTransaction(id: string) {
+        var transaction = this.getTransaction(id);
+        var period = this.getPeriod(transaction);
+        var removed = _.remove<Transaction>(period.transactions, (t) => {
+            return transaction.id == t.id;
+        });
+
+        this._offTheBooks.push(_.first(removed));
+        this.save();
+        amplify.publish('update-all');
     }
 
     getStartingAmount() {
@@ -250,7 +255,8 @@ export class BiWeeklyBudget {
 
     updateExpenseAmount(expense: Expense, value: string) {
         expense.amount = parseFloat(value);
-        //amplify.publish('update-estimate');
+        var estimate = _.find<Estimate>(this._estimates.estimates, (estimate) => { return estimate.id == expense.parentId; });
+        amplify.publish('modified-expense', estimate, expense);
     }
 
     updateEstimateAmount(estimate: Estimate, value: string) {
@@ -312,9 +318,20 @@ export class BiWeeklyBudget {
         var estimate = _.find<Estimate>(this._estimates.estimates, (estimate) => {
             return estimate.id == id;
         });
-        estimate.expenses.push(new Expense(parseFloat(amount), estimate.id));
+        var expense = new Expense(parseFloat(amount), estimate.id);
+        estimate.expenses.push(expense);
         this.save();
-        amplify.publish('update-estimate', estimate);
+        amplify.publish('add-expense', estimate, expense);
+    }
+
+    removeExpense(estimateId: string, expenseId: string) {
+        var estimate = _.find<Estimate>(this._estimates.estimates, (estimate) => {
+            return estimate.id == estimateId;
+        });
+        _.remove(estimate.expenses, (expense: Expense) => {
+            return expense.id == expenseId;
+        });
+        amplify.publish('remove-expense', estimate, expenseId);
     }
 }
 

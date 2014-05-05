@@ -137,6 +137,36 @@
                 estimateVm = new EstimateViewModel(estimate);
             });
 
+            amplify.subscribe('add-expense', function (estimate, expense) {
+                var estimateVm = _.find(_this.estimates(), function (e) {
+                    return expense.parentId == e.id;
+                });
+                estimateVm.expenses.push(new ExpenseViewModel(expense));
+                updateEstimateValues(estimateVm, estimate);
+            });
+
+            amplify.subscribe('remove-expense', function (estimate, expenseId) {
+                var estimateVm = _.find(_this.estimates(), function (e) {
+                    return estimate.id == e.id;
+                });
+                estimateVm.expenses.remove(function (expense) {
+                    return expense.id == expenseId;
+                });
+                updateEstimateValues(estimateVm, estimate);
+            });
+
+            amplify.subscribe('modified-expense', function (estimate, expense) {
+                var estimateVm = _.find(_this.estimates(), function (e) {
+                    return expense.parentId == e.id;
+                });
+                updateEstimateValues(estimateVm, estimate);
+            });
+
+            function updateEstimateValues(estimateVm, estimate) {
+                estimateVm.amountLeft(estimate.amountLeft().toFixed(2));
+                estimateVm.total(estimate.total().toFixed(2));
+            }
+
             amplify.subscribe('update-estimates', function () {
                 _this.updateEstimates();
             });
@@ -161,14 +191,19 @@
 
         BudgetViewModel.prototype.addExpense = function (estimate) {
             budget.addExpense(estimate.id, estimate.newExpenseAmount());
+            estimate.newExpenseAmount('');
         };
 
         BudgetViewModel.prototype.moveTransaction = function (transaction) {
-            amplify.publish('moving-transaction', transaction.id);
+            budget.moveTransaction(transaction.id);
         };
 
         BudgetViewModel.prototype.removeEstimate = function (estimate) {
             budget.removeEstimate(estimate.id);
+        };
+
+        BudgetViewModel.prototype.removeExpense = function (expense) {
+            budget.removeExpense(expense.parentId, expense.id);
         };
 
         BudgetViewModel.prototype.update = function (period, num) {
