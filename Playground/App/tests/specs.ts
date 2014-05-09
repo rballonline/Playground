@@ -130,7 +130,7 @@ describe('Bi-weekly budget', () => {
 
         expect(b.getEndingBalance(1)).toBe(180);
 
-        b.manageEstimate(new Budget.Estimate('', 50));
+        b.addEstimate(new Budget.Estimate('', 50));
 
         expect(b.getEndingBalance(1)).toBe(130);
     });
@@ -145,7 +145,7 @@ describe('Bi-weekly budget', () => {
 
         expect(b.getEndingBalance(2)).toBe(160);
 
-        b.manageEstimate(new Budget.Estimate('', 10));
+        b.addEstimate(new Budget.Estimate('', 10));
 
         expect(b.getEndingBalance(2)).toBe(150);
     });
@@ -160,8 +160,20 @@ describe('Bi-weekly budget', () => {
 
         expect(b.getEndingBalance(3)).toBe(140);
 
-        b.manageEstimate(new Budget.Estimate('', 10));
+        b.addEstimate(new Budget.Estimate('', 10));
 
         expect(b.getEndingBalance(3)).toBe(130);
+    });
+
+
+    it('should be able to move transaction on and off books', () => {
+        expect(b.getEndingBalance(1)).toBe(200);
+        var tx = new Budget.Transaction(1, '', 5);
+        b.addTransaction(tx);
+        expect(b.getEndingBalance(1)).toBe(195);
+        b.moveTransaction(tx.id);
+        expect(b.getEndingBalance(1)).toBe(200);
+        b.reAddTransaction(tx.id);
+        expect(b.getEndingBalance(1)).toBe(195);
     });
 });

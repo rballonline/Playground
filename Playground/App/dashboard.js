@@ -206,6 +206,10 @@
             budget.removeExpense(expense.parentId, expense.id);
         };
 
+        BudgetViewModel.prototype.reAddTransaction = function (transaction) {
+            budget.reAddTransaction(transaction.id);
+        };
+
         BudgetViewModel.prototype.update = function (period, num) {
             period.removeAll();
             _.each(budget.getTransactions(num), function (transaction) {

@@ -1,4 +1,31 @@
 ﻿define(["require", "exports", '../modules/payPeriods', 'lodash'], function(require, exports, payPeriods, _) {
+    var Savings = (function () {
+        function Savings(forAmount, amount, currentSavings, contributing) {
+            this.forAmount = forAmount;
+            this.id = guid();
+            this.amount = amount;
+            this.currentSavings = currentSavings;
+            this.contributing = contributing;
+        }
+        Savings.prototype.getBalance = function () {
+            return this.contributing + this.currentSavings;
+        };
+
+        Savings.prototype.getPeriodsLeft = function () {
+            var i = 0;
+            var balance = this.currentSavings;
+            if (this.contributing && this.contributing > 0) {
+                while (this.currentSavings < this.amount) {
+                    balance += this.contributing;
+                    i++;
+                }
+            }
+            return i;
+        };
+        return Savings;
+    })();
+    exports.Savings = Savings;
+
     var Transaction = (function () {
         function Transaction(day, forAmount, amount) {
             this.day = day;
@@ -128,19 +155,10 @@
                 _this.save();
                 amplify.publish('update-periods');
             });
-
-            amplify.subscribe('moving-transaction', function (id) {
-                var transaction = _this.getTransaction(id);
-                var period = _this.getPeriod(transaction);
-                var removed = _.remove(period.transactions, function (t) {
-                    return transaction.id == t.id;
-                });
-
-                _this._offTheBooks.push(_.first(removed));
-                _this.save();
-                amplify.publish('update-all');
-            });
         }
+        BiWeeklyBudget.prototype.addSavings = function () {
+        };
+
         BiWeeklyBudget.prototype.addTransaction = function (transaction) {
             var period = this.getPeriod(transaction);
             period.transactions.push(transaction);
@@ -206,6 +224,25 @@
             enumerable: true,
             configurable: true
         });
+
+        BiWeeklyBudget.prototype.moveTransaction = function (id) {
+            var transaction = this.getTransaction(id);
+            var period = this.getPeriod(transaction);
+            var removed = _.remove(period.transactions, function (t) {
+                return transaction.id == t.id;
+            });
+
+            this._offTheBooks.push(_.first(removed));
+            this.save();
+            amplify.publish('update-all');
+        };
+
+        BiWeeklyBudget.prototype.reAddTransaction = function (id) {
+            var transaction = _.first(_.remove(this._offTheBooks, function (tx) {
+                return tx.id == id;
+            }));
+            this.addTransaction(transaction);
+        };
 
         BiWeeklyBudget.prototype.getStartingAmount = function () {
             return this._startingAmount;

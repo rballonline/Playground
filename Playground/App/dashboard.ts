@@ -213,6 +213,10 @@ class BudgetViewModel {
         budget.removeExpense(expense.parentId, expense.id);
     }
 
+    reAddTransaction(transaction: TransactionViewModel) {
+        budget.reAddTransaction(transaction.id);
+    }
+
     activate = () => {
         budget.load();
 

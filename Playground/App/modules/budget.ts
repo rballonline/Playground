@@ -9,6 +9,38 @@ export interface HasId {
     id: string;
 }
 
+export class Savings implements CanTotal, HasId {
+    id: string;
+    forAmount: string;
+    amount: number;
+    currentSavings: number;
+    contributing: number;
+
+    constructor(forAmount: string, amount: number, currentSavings?: number, contributing?: number) {
+        this.forAmount = forAmount;
+        this.id = guid();
+        this.amount = amount;
+        this.currentSavings = currentSavings;
+        this.contributing = contributing;
+    }
+
+    getBalance() {
+        return this.contributing + this.currentSavings;
+    }
+
+    getPeriodsLeft() {
+        var i = 0;
+        var balance = this.currentSavings;
+        if (this.contributing && this.contributing > 0) {
+            while (this.currentSavings < this.amount) {
+                balance += this.contributing;
+                i++;
+            }
+        }
+        return i;
+    }
+}
+
 export class Transaction implements CanTotal, HasId {
     day: number;
     forAmount: string;
@@ -136,6 +168,9 @@ export class BiWeeklyBudget {
         });
     }
 
+    addSavings() {
+    }
+
     addTransaction(transaction: Transaction) {
         var period = this.getPeriod(transaction);
         period.transactions.push(transaction);
@@ -203,6 +238,13 @@ export class BiWeeklyBudget {
         this._offTheBooks.push(_.first(removed));
         this.save();
         amplify.publish('update-all');
+    }
+
+    reAddTransaction(id: string) {
+        var transaction = _.first(_.remove<Transaction>(this._offTheBooks, (tx: Transaction) => {
+            return tx.id == id;
+        }));
+        this.addTransaction(transaction);
     }
 
     getStartingAmount() {
