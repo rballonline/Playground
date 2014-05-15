@@ -9,7 +9,7 @@ export interface HasId {
     id: string;
 }
 
-export class Savings implements CanTotal, HasId {
+export class Savings implements HasId {
     id: string;
     forAmount: string;
     amount: number;
@@ -113,6 +113,7 @@ export class Period {
 
 export class BiWeeklyBudget {
     private _estimates = new Estimates(); // hmm not sure about this
+    private _savings: Array<Savings> = [];
     private _startingAmount = 0;
     private _payCheckAmount = 0;
     private _firstPeriod = new Period(1);
@@ -168,7 +169,10 @@ export class BiWeeklyBudget {
         });
     }
 
-    addSavings() {
+    addSavings(savings: Savings) {
+        this._savings.push(savings);
+        this.save();
+        amplify.publish('add-savings', savings);
     }
 
     addTransaction(transaction: Transaction) {
@@ -185,7 +189,7 @@ export class BiWeeklyBudget {
         _.each(this._secondPeriod.transactions, function (t) { transactions.push(t); });
         _.each(this._thirdPeriod.transactions, function (t) { transactions.push(t); });
 
-        amplify.store('data', JSON.stringify({ startingAmount: this._startingAmount, payCheckAmount: this._payCheckAmount, transactions: transactions, offTheBooks: this._offTheBooks, estimates: this._estimates.estimates }));
+        amplify.store('data', JSON.stringify({ startingAmount: this._startingAmount, payCheckAmount: this._payCheckAmount, transactions: transactions, offTheBooks: this._offTheBooks, estimates: this._estimates.estimates, savings: this._savings }));
     }
 
     load() {
@@ -214,6 +218,9 @@ export class BiWeeklyBudget {
                     _.each(e.expenses, (ex: Expense) => {
                         estimate.expenses.push(new Expense(ex.amount, estimate.id));
                     });
+                });
+                _.each(data.savings, (s: Savings) => {
+                    this._savings.push(new Savings(s.forAmount, s.amount, s.currentSavings, s.contributing));
                 });
                 amplify.publish('update-all');
             }
@@ -245,6 +252,8 @@ export class BiWeeklyBudget {
             return tx.id == id;
         }));
         this.addTransaction(transaction);
+        this.save();
+        amplify.publish('update-all');
     }
 
     getStartingAmount() {

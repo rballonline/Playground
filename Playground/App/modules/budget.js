@@ -101,6 +101,7 @@
         function BiWeeklyBudget(firstPayDate) {
             var _this = this;
             this._estimates = new Estimates();
+            this._savings = [];
             this._startingAmount = 0;
             this._payCheckAmount = 0;
             this._firstPeriod = new Period(1);
@@ -156,7 +157,10 @@
                 amplify.publish('update-periods');
             });
         }
-        BiWeeklyBudget.prototype.addSavings = function () {
+        BiWeeklyBudget.prototype.addSavings = function (savings) {
+            this._savings.push(savings);
+            this.save();
+            amplify.publish('add-savings', savings);
         };
 
         BiWeeklyBudget.prototype.addTransaction = function (transaction) {
@@ -179,7 +183,7 @@
                 transactions.push(t);
             });
 
-            amplify.store('data', JSON.stringify({ startingAmount: this._startingAmount, payCheckAmount: this._payCheckAmount, transactions: transactions, offTheBooks: this._offTheBooks, estimates: this._estimates.estimates }));
+            amplify.store('data', JSON.stringify({ startingAmount: this._startingAmount, payCheckAmount: this._payCheckAmount, transactions: transactions, offTheBooks: this._offTheBooks, estimates: this._estimates.estimates, savings: this._savings }));
         };
 
         BiWeeklyBudget.prototype.load = function () {
@@ -208,6 +212,9 @@
                         _.each(e.expenses, function (ex) {
                             estimate.expenses.push(new Expense(ex.amount, estimate.id));
                         });
+                    });
+                    _.each(data.savings, function (s) {
+                        _this._savings.push(new Savings(s.forAmount, s.amount, s.currentSavings, s.contributing));
                     });
                     amplify.publish('update-all');
                 }
@@ -242,6 +249,8 @@
                 return tx.id == id;
             }));
             this.addTransaction(transaction);
+            this.save();
+            amplify.publish('update-all');
         };
 
         BiWeeklyBudget.prototype.getStartingAmount = function () {

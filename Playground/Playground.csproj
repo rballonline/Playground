@@ -113,6 +113,12 @@
     <Content Include="App\shell.html" />
     <Content Include="App\shell.js" />
     <Content Include="App\dashboard.html" />
+    <Content Include="Content\castlevania\level1.png" />
+    <Content Include="Content\castlevania\loader.png" />
+    <Content Include="Content\castlevania\logo.png" />
+    <Content Include="Content\castlevania\simon.png" />
+    <Content Include="Content\castlevania\title.mp3" />
+    <Content Include="Content\castlevania\titlepage.jpg" />
     <Content Include="Content\durandal.css" />
     <Content Include="Content\images\icon.png" />
     <Content Include="Content\images\ios-startup-image-landscape.png" />
@@ -152,6 +158,8 @@
     <Content Include="Scripts\jquery.signalR-2.0.3.min.js" />
     <Content Include="Scripts\lodash.js" />
     <Content Include="Scripts\lodash.min.js" />
+    <Content Include="Scripts\phaser.js" />
+    <Content Include="Scripts\phaser.min.js" />
     <Content Include="weyland-config.js" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
@@ -183,6 +191,8 @@
     <Content Include="Scripts\jquery-1.9.1.min.map" />
     <Content Include="Views\Durandal.cshtml" />
     <Content Include="Views\DurandalSpecs.cshtml" />
+    <Content Include="Scripts\phaser.map" />
+    <Content Include="Views\CastleVania.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="App\modules\budget.ts" />
@@ -191,6 +201,13 @@
     <TypeScriptCompile Include="App\dashboard.ts" />
     <TypeScriptCompile Include="App\savings.ts" />
     <TypeScriptCompile Include="App\tests\specs.ts" />
+    <TypeScriptCompile Include="Scripts\castlevania\Boot.ts" />
+    <TypeScriptCompile Include="Scripts\castlevania\Game.ts" />
+    <TypeScriptCompile Include="Scripts\castlevania\Level1.ts" />
+    <TypeScriptCompile Include="Scripts\castlevania\MainMenu.ts" />
+    <TypeScriptCompile Include="Scripts\castlevania\Player.ts" />
+    <TypeScriptCompile Include="Scripts\castlevania\Preloader.ts" />
+    <TypeScriptCompile Include="Scripts\typings\phaser.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\amplifyjs\amplifyjs.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\durandal\durandal.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
