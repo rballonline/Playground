@@ -14,7 +14,8 @@ namespace Playground.Modules
 			Get["/knockout"] = p => { return View["Knockout"]; };
 			Get["/durandal"] = p => { return View["Durandal"]; };
 			Get["/durandal/tests"] = p => { return View["DurandalSpecs"]; };
-			Get["/castlevania"] = _ => { return View["CastleVania"];};
+			Get["/castlevania"] = _ => { return View["CastleVania"]; };
+			Get["/golf"] = _ => { return View["Golf"]; };
 		}
 	}
 }

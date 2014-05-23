@@ -120,6 +120,7 @@
     <Content Include="Content\castlevania\title.mp3" />
     <Content Include="Content\castlevania\titlepage.jpg" />
     <Content Include="Content\durandal.css" />
+    <Content Include="Content\golf\loader.png" />
     <Content Include="Content\images\icon.png" />
     <Content Include="Content\images\ios-startup-image-landscape.png" />
     <Content Include="Content\images\ios-startup-image-portrait.png" />
@@ -193,6 +194,7 @@
     <Content Include="Views\DurandalSpecs.cshtml" />
     <Content Include="Scripts\phaser.map" />
     <Content Include="Views\CastleVania.cshtml" />
+    <Content Include="Views\Golf.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="App\modules\budget.ts" />
@@ -207,6 +209,11 @@
     <TypeScriptCompile Include="Scripts\castlevania\MainMenu.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Player.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Preloader.ts" />
+    <TypeScriptCompile Include="Scripts\golf\Boot.ts" />
+    <TypeScriptCompile Include="Scripts\golf\Game.ts" />
+    <TypeScriptCompile Include="Scripts\golf\Level1.ts" />
+    <TypeScriptCompile Include="Scripts\golf\MainMenu.ts" />
+    <TypeScriptCompile Include="Scripts\golf\Preloader.ts" />
     <TypeScriptCompile Include="Scripts\typings\phaser.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\amplifyjs\amplifyjs.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\durandal\durandal.d.ts" />
