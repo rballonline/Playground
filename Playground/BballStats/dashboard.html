@@ -43,56 +43,206 @@
 			<!-- /ko -->
 			<button class="btn btn-block btn-primary" data-bind="enable: currentPlayers().length == 5,click: doneMakingSubstitutions">Done</button>
 		</div>
-		<div id="our-team" class="col-sm-9">
-			<div class="row">
-				<div class="col-sm-4">
-					<h4>2PT Shot</h4>
-					<div class="btn-group btn-group-justified">
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '2ptMade'), css: { 'btn-default' : activeButton() != '2ptMade', 'btn-success': activeButton() == '2ptMade' }">Made</a>
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '2ptMiss'), css: { 'btn-default' : activeButton() != '2ptMiss', 'btn-danger': activeButton() == '2ptMiss' }">Miss</a>
-					</div>
+		<div class="col-sm-10">
+			<div id="our-team" class="row">
+				<div class="col-sm-11">
+						<div class="row">
+							<div class="col-sm-4">
+								<h4>2PT Shot</h4>
+								<div class="btn-group btn-group-justified">
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'made 2 pointer'), css: { 'btn-default' : activeButton() != 'made 2 pointer', 'btn-success': activeButton() == 'made 2 pointer' }">Made</a>
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'missed 2 pointer'), css: { 'btn-default' : activeButton() != 'missed 2 pointer', 'btn-danger': activeButton() == 'missed 2 pointer' }">Miss</a>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<h4>3PT Shot</h4>
+								<div class="btn-group btn-group-justified">
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'made 3 pointer'), css: { 'btn-default' : activeButton() != 'made 3 pointer', 'btn-success': activeButton() == 'made 3 pointer' }">Made</a>
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'missed 3 pointer'), css: { 'btn-default' : activeButton() != 'missed 3 pointer', 'btn-danger': activeButton() == 'missed 3 pointer' }">Miss</a>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<h4>Free Throws</h4>
+								<div class="btn-group btn-group-justified">
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'made free throw'), css: { 'btn-default' : activeButton() != 'made free throw', 'btn-success': activeButton() == 'made free throw' }">Made</a>
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'missed free throw'), css: { 'btn-default' : activeButton() != 'missed free throw', 'btn-danger': activeButton() == 'missed free throw' }">Miss</a>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<h4>Rebounds</h4>
+								<div class="btn-group btn-group-justified">
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'made an offensive rebound'), css: { 'btn-default' : activeButton() != 'made an offensive rebound', 'btn-success': activeButton() == 'made an offensive rebound' }">Offensive</a>
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'made an defensive rebound'), css: { 'btn-default' : activeButton() != 'made an defensive rebound', 'btn-danger': activeButton() == 'made an defensive rebound' }">Defensive</a>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<h4>Fouls</h4>
+								<div class="btn-group btn-group-justified">
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'committed a foul'), css: { 'btn-default' : activeButton() != 'committed a foul', 'btn-success': activeButton() == 'committed a foul' }">Committed</a>
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'was forced to make a foul'), css: { 'btn-default' : activeButton() != 'was forced to make a foul', 'btn-danger': activeButton() == 'was forced to make a foul' }">Forced</a>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<h4>Turnovers</h4>
+								<div class="btn-group btn-group-justified">
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'intercepted a pass'), css: { 'btn-default' : activeButton() != 'intercepted a pass', 'btn-success': activeButton() == 'intercepted a pass' }">Pass</a>
+									<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'stole the ball'), css: { 'btn-default' : activeButton() != 'stole the ball', 'btn-danger': activeButton() == 'stole the ball' }">Steal</a>
+								</div>
+							</div>
+						</div>
 				</div>
-				<div class="col-sm-4">
-					<h4>3PT Shot</h4>
-					<div class="btn-group btn-group-justified">
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '3ptMade'), css: { 'btn-default' : activeButton() != '3ptMade', 'btn-success': activeButton() == '3ptMade' }">Made</a>
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '3ptMiss'), css: { 'btn-default' : activeButton() != '3ptMiss', 'btn-danger': activeButton() == '3ptMiss' }">Miss</a>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<h4>Free Throws</h4>
-					<div class="btn-group btn-group-justified">
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'freeThrowMade'), css: { 'btn-default' : activeButton() != 'freeThrowMade', 'btn-success': activeButton() == 'freeThrowMade' }">Made</a>
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'freeThrowMiss'), css: { 'btn-default' : activeButton() != 'freeThrowMiss', 'btn-danger': activeButton() == 'freeThrowMiss' }">Miss</a>
-					</div>
+				<div class="col-sm-1">
+					<button id="record-button" class="btn btn-primary btn-lg" data-bind="enable: homeRecordEnabled, click: recordHome">Record<br />Home<br />Team<br />Stat</button>
 				</div>
 			</div>
-			<div class="row">
-				<div class="col-sm-4">
-					<h4>Rebounds</h4>
-					<div class="btn-group btn-group-justified">
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'homeOffReb'), css: { 'btn-default' : activeButton() != 'homeOffReb', 'btn-success': activeButton() == 'homeOffReb' }">Offensive</a>
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'homeDefReb'), css: { 'btn-default' : activeButton() != 'homeDefReb', 'btn-danger': activeButton() == 'homeDefReb' }">Defensive</a>
+
+			<div id="other-team" class="row">
+				<div class="col-sm-11">
+					<div class="row">
+						<div class="col-sm-4">
+							<h4>2PT Shot</h4>
+							<div class="btn-group btn-group-justified">
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'made 2 pointer'), css: { 'btn-default' : activeAwayButton() != 'made 2 pointer', 'btn-success': activeAwayButton() == 'made 2 pointer' }">Made</a>
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'missed 2 pointer'), css: { 'btn-default' : activeAwayButton() != 'missed 2 pointer', 'btn-danger': activeAwayButton() == 'missed 2 pointer' }">Miss</a>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<h4>3PT Shot</h4>
+							<div class="btn-group btn-group-justified">
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'made 3 pointer'), css: { 'btn-default' : activeAwayButton() != 'made 3 pointer', 'btn-success': activeAwayButton() == 'made 3 pointer' }">Made</a>
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'missed 3 pointer'), css: { 'btn-default' : activeAwayButton() != 'missed 3 pointer', 'btn-danger': activeAwayButton() == 'missed 3 pointer' }">Miss</a>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<h4>Free Throws</h4>
+							<div class="btn-group btn-group-justified">
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'made free throw'), css: { 'btn-default' : activeAwayButton() != 'made free throw', 'btn-success': activeAwayButton() == 'made free throw' }">Made</a>
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'missed free throw'), css: { 'btn-default' : activeAwayButton() != 'missed free throw', 'btn-danger': activeAwayButton() == 'missed free throw' }">Miss</a>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4">
+							<h4>Rebounds</h4>
+							<div class="btn-group btn-group-justified">
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'made an offensive rebound'), css: { 'btn-default' : activeAwayButton() != 'made an offensive rebound', 'btn-success': activeAwayButton() == 'made an offensive rebound' }">Offensive</a>
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'made an defensive rebound'), css: { 'btn-default' : activeAwayButton() != 'made an defensive rebound', 'btn-danger': activeAwayButton() == 'made an defensive rebound' }">Defensive</a>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<h4>Fouls</h4>
+							<div class="btn-group btn-group-justified">
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'committed a foul'), css: { 'btn-default' : activeAwayButton() != 'committed a foul', 'btn-success': activeAwayButton() == 'committed a foul' }">Committed</a>
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'was forced to make a foul'), css: { 'btn-default' : activeAwayButton() != 'was forced to make a foul', 'btn-danger': activeAwayButton() == 'was forced to make a foul' }">Forced</a>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<h4>Turnovers</h4>
+							<div class="btn-group btn-group-justified">
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'intercepted a pass'), css: { 'btn-default' : activeAwayButton() != 'intercepted a pass', 'btn-success': activeAwayButton() == 'intercepted a pass' }">Pass</a>
+								<a href="#" class="btn" data-bind="click: activateAwayButton.bind($data, 'stole the ball'), css: { 'btn-default' : activeAwayButton() != 'stole the ball', 'btn-danger': activeAwayButton() == 'stole the ball' }">Steal</a>
+							</div>
+						</div>
 					</div>
 				</div>
-				<div class="col-sm-4">
-					<h4>Fouls</h4>
-					<div class="btn-group btn-group-justified">
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'foulCommitted'), css: { 'btn-default' : activeButton() != 'foulCommitted', 'btn-success': activeButton() == 'foulCommitted' }">Committed</a>
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'foulForced'), css: { 'btn-default' : activeButton() != 'foulForced', 'btn-danger': activeButton() == 'foulForced' }">Forced</a>
-					</div>
-				</div>
-				<div class="col-sm-4">
-					<h4>Turnovers</h4>
-					<div class="btn-group btn-group-justified">
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'turnOverPass'), css: { 'btn-default' : activeButton() != 'turnOverPass', 'btn-success': activeButton() == 'turnOverPass' }">Pass</a>
-						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'turnOverSteal'), css: { 'btn-default' : activeButton() != 'turnOverSteal', 'btn-danger': activeButton() == 'turnOverSteal' }">Steal</a>
-					</div>
+				<div class="col-sm-1">
+					<button id="record-button" class="btn btn-primary btn-lg" data-bind="enable: awayRecordEnabled, click: recordAway">Record<br />Away<br />Team<br />Stat</button>
 				</div>
 			</div>
-		</div>
-		<div class="col-sm-1">
-			<button id="record-button" class="btn btn-primary btn-lg" data-bind="enable: homeRecordEnabled, click: recordHome">Record</button>
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-sm-4">
+			<h4>Play by play</h4>
+			<ul data-bind="foreach: actions">
+				<li data-bind="html: explain()"></li>
+			</ul>
+		</div>
+		<div class="col-sm-8">
+			<h4>Player Stats</h4>
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Name</th>
+						<th>FGA</th>
+						<th>EFG%</th>
+						<th>FTA</th>
+						<th>FT%</th>
+						<th>OReb (%)</th>
+						<th>DReb (%)</th>
+						<th>C Fouls</th>
+						<th>F Fouls</th>
+						<th>STO</th>
+						<th>PTO</th>
+					</tr>
+				</thead>
+				<tbody data-bind="foreach: players">
+					<tr>
+						<td data-bind="text: playerNumber"></td>
+						<td data-bind="text: name"></td>
+						<td data-bind="text: fieldGoalAttempts"></td>
+						<td data-bind="text: effectiveFieldGoalPercentage"></td>
+						<td data-bind="text: freeThrowAttempts"></td>
+						<td data-bind="text: freeThrowPercentage"></td>
+						<td data-bind="text: offensiveRebounds"></td>
+						<td data-bind="text: defensiveRebounds"></td>
+						<td data-bind="text: committedFouls"></td>
+						<td data-bind="text: forcedFouls"></td>
+						<td data-bind="text: stealTurnovers"></td>
+						<td data-bind="text: passTurnover"></td>
+</tr>
+				</tbody>
+				<tfoot>
+					<tr class="success">
+						<th colspan="2">
+							Our Team
+						</th>
+						<td data-bind="text: homeFieldGoalAttempts"></td>
+						<td data-bind="text: homeEffectiveFieldGoalPercentage"></td>
+						<td data-bind="text: homeFreeThrowAttempts"></td>
+						<td data-bind="text: homeFreeThrowPercentage"></td>
+						<td data-bind="text: homeOffensiveReboundPercentage"></td>
+						<td data-bind="text: homeDefensiveReboundPercentage"></td>
+						<td data-bind="text: homeCommittedFouls"></td>
+						<td data-bind="text: homeForcedFouls"></td>
+						<td data-bind="text: homeStealTurnovers"></td>
+						<td data-bind="text: homePassTurnover"></td>
+					</tr>
+					<tr class="warning">
+						<th colspan="2">
+							Opponents
+						</th>
+						<td data-bind="text: awayFieldGoalAttempts"></td>
+						<td data-bind="text: awayEffectiveFieldGoalPercentage"></td>
+						<td data-bind="text: awayFreeThrowAttempts"></td>
+						<td data-bind="text: awayFreeThrowPercentage"></td>
+						<td data-bind="text: awayOffensiveReboundPercentage"></td>
+						<td data-bind="text: awayDefensiveReboundPercentage"></td>
+						<td data-bind="text: awayCommittedFouls"></td>
+						<td data-bind="text: awayForcedFouls"></td>
+						<td data-bind="text: awayStealTurnovers"></td>
+						<td data-bind="text: awayPassTurnover"></td>
+					</tr>
+					<tr class="info">
+						<th colspan="2">
+							Difference
+						</th>
+						<td data-bind="text: diffFieldGoalAttempts"></td>
+						<td data-bind="text: diffEffectiveFieldGoalPercentage"></td>
+						<td data-bind="text: diffFreeThrowAttempts"></td>
+						<td data-bind="text: diffFreeThrowPercentage"></td>
+						<td data-bind="text: diffOffensiveReboundPercentage"></td>
+						<td data-bind="text: diffDefensiveReboundPercentage"></td>
+						<td data-bind="text: diffCommittedFouls"></td>
+						<td data-bind="text: diffForcedFouls"></td>
+						<td data-bind="text: diffStealTurnovers"></td>
+						<td data-bind="text: diffPassTurnover"></td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>	
 </div>
