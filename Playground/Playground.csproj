@@ -114,7 +114,9 @@
     <Content Include="App\shell.js" />
     <Content Include="App\dashboard.html" />
     <Content Include="BballStats\dashboard.html" />
-    <Content Include="BballStats\dashboard.js" />
+    <Content Include="BballStats\dashboard.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="BballStats\main.js" />
     <Content Include="BballStats\shell.html" />
     <Content Include="BballStats\shell.js" />
