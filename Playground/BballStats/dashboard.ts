@@ -343,10 +343,12 @@ export class DashBoardViewModel {
         this.activeButton('');
         _.each(this.currentPlayers(), (player) => {
             player.active(false);
+            // super
         });
     }
 
     activate = () => {
+
     }
 
     setCurrentPeriod = (period : number) => {

@@ -358,6 +358,7 @@
             this.activeButton('');
             _.each(this.currentPlayers(), function (player) {
                 player.active(false);
+                // super
             });
         };
         return DashBoardViewModel;
