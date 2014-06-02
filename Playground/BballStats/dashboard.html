@@ -1,0 +1,98 @@
+﻿<br />
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			Current Period
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-2">
+			<button class="btn btn-block" data-bind="css: { 'btn-primary' : currentPeriod() === 1 }, click: setCurrentPeriod.bind($data, 1)">1st Period</button>
+		</div>
+		<div class="col-sm-2">
+			<button class="btn btn-block" data-bind="css: { 'btn-primary' : currentPeriod() === 2 }, click: setCurrentPeriod.bind($data, 2)">2nd Period</button>
+		</div>
+		<div class="col-sm-2">
+			<button class="btn btn-block" data-bind="css: { 'btn-primary' : currentPeriod() === 3 }, click: setCurrentPeriod.bind($data, 3)">3rd Period</button>
+		</div>
+		<div class="col-sm-2">
+			<button class="btn btn-block" data-bind="css: { 'btn-primary' : currentPeriod() === 4 }, click: setCurrentPeriod.bind($data, 4)">4th Period</button>
+		</div>
+		<div class="col-sm-2">
+			<button class="btn btn-block" data-bind="css: { 'btn-primary' : currentPeriod() === 5 }, click: setCurrentPeriod.bind($data, 5)">5th Period</button>
+		</div>
+		<div class="col-sm-2 scores">
+			Home: <span data-bind="text: homeScore"></span>
+			Away: <span data-bind="text: awayScore"></span>
+		</div>
+	</div>
+	<hr />
+	<div class="row">
+		<div class="col-sm-2" data-bind="visible: makingSubstitutions() == false">
+			<!-- ko foreach: currentPlayers -->
+			<button class="btn btn-block" data-bind="click: $parent.choosePlayer, css: { 'btn-default' : active() == false, 'btn-success': active }">#<!-- ko text: playerNumber --><!-- /ko --> <!-- ko text: name --><!-- /ko --></button>
+			<!-- /ko -->
+			<button class="btn btn-block btn-primary" data-bind="click: makeSubtitutions">Make Substitution</button>
+		</div>
+		<div class="col-sm-2" data-bind="visible: makingSubstitutions">
+			<!-- ko foreach: currentPlayers -->
+			<button class="btn btn-block btn-success" data-bind="click: $parent.removePlayer">#<!-- ko text: playerNumber --><!-- /ko --> <!-- ko text: name --><!-- /ko --></button>
+			<!-- /ko -->
+			<!-- ko foreach: benchedPlayers -->
+			<button class="btn btn-block btn-default" data-bind="enable: $parent.currentPlayers().length < 5, click: $parent.addPlayer">#<!-- ko text: playerNumber --><!-- /ko --> <!-- ko text: name --><!-- /ko --></button>
+			<!-- /ko -->
+			<button class="btn btn-block btn-primary" data-bind="enable: currentPlayers().length == 5,click: doneMakingSubstitutions">Done</button>
+		</div>
+		<div id="our-team" class="col-sm-9">
+			<div class="row">
+				<div class="col-sm-4">
+					<h4>2PT Shot</h4>
+					<div class="btn-group btn-group-justified">
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '2ptMade'), css: { 'btn-default' : activeButton() != '2ptMade', 'btn-success': activeButton() == '2ptMade' }">Made</a>
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '2ptMiss'), css: { 'btn-default' : activeButton() != '2ptMiss', 'btn-danger': activeButton() == '2ptMiss' }">Miss</a>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<h4>3PT Shot</h4>
+					<div class="btn-group btn-group-justified">
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '3ptMade'), css: { 'btn-default' : activeButton() != '3ptMade', 'btn-success': activeButton() == '3ptMade' }">Made</a>
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, '3ptMiss'), css: { 'btn-default' : activeButton() != '3ptMiss', 'btn-danger': activeButton() == '3ptMiss' }">Miss</a>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<h4>Free Throws</h4>
+					<div class="btn-group btn-group-justified">
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'freeThrowMade'), css: { 'btn-default' : activeButton() != 'freeThrowMade', 'btn-success': activeButton() == 'freeThrowMade' }">Made</a>
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'freeThrowMiss'), css: { 'btn-default' : activeButton() != 'freeThrowMiss', 'btn-danger': activeButton() == 'freeThrowMiss' }">Miss</a>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h4>Rebounds</h4>
+					<div class="btn-group btn-group-justified">
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'homeOffReb'), css: { 'btn-default' : activeButton() != 'homeOffReb', 'btn-success': activeButton() == 'homeOffReb' }">Offensive</a>
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'homeDefReb'), css: { 'btn-default' : activeButton() != 'homeDefReb', 'btn-danger': activeButton() == 'homeDefReb' }">Defensive</a>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<h4>Fouls</h4>
+					<div class="btn-group btn-group-justified">
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'foulCommitted'), css: { 'btn-default' : activeButton() != 'foulCommitted', 'btn-success': activeButton() == 'foulCommitted' }">Committed</a>
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'foulForced'), css: { 'btn-default' : activeButton() != 'foulForced', 'btn-danger': activeButton() == 'foulForced' }">Forced</a>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<h4>Turnovers</h4>
+					<div class="btn-group btn-group-justified">
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'turnOverPass'), css: { 'btn-default' : activeButton() != 'turnOverPass', 'btn-success': activeButton() == 'turnOverPass' }">Pass</a>
+						<a href="#" class="btn" data-bind="click: activateButton.bind($data, 'turnOverSteal'), css: { 'btn-default' : activeButton() != 'turnOverSteal', 'btn-danger': activeButton() == 'turnOverSteal' }">Steal</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-1">
+			<button id="record-button" class="btn btn-primary btn-lg" data-bind="enable: homeRecordEnabled, click: recordHome">Record</button>
+		</div>
+	</div>
+</div>

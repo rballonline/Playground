@@ -18,9 +18,11 @@
                        this.add.tween(this.logo).to({ y: 220 }, 2000, Phaser.Easing.Elastic.Out, true, 2000);
              */
             this.game.add.text(this.game.world.centerX, 10, 'Golf', { font: '45px Arial' });
-            this.game.add.text(this.game.world.centerX, 50, 'Start', { font: '25p Arial' }); 
+            var start = this.game.add.text(this.game.world.centerX, 50, 'Start', { font: '25px Arial' }); 
+            start.inputEnabled = true;
+            start.events.onInputDown.add(this.startGame, this);
 
-            this.input.onDown.addOnce(this.startGame, this);
+            //this.input.onDown.addOnce(this.startGame, this);
  
         }
  

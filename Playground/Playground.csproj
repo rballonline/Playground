@@ -113,6 +113,11 @@
     <Content Include="App\shell.html" />
     <Content Include="App\shell.js" />
     <Content Include="App\dashboard.html" />
+    <Content Include="BballStats\dashboard.html" />
+    <Content Include="BballStats\main.js" />
+    <Content Include="BballStats\shell.html" />
+    <Content Include="BballStats\shell.js" />
+    <Content Include="Content\BballStats.css" />
     <Content Include="Content\castlevania\level1.png" />
     <Content Include="Content\castlevania\loader.png" />
     <Content Include="Content\castlevania\logo.png" />
@@ -195,6 +200,7 @@
     <Content Include="Scripts\phaser.map" />
     <Content Include="Views\CastleVania.cshtml" />
     <Content Include="Views\Golf.cshtml" />
+    <Content Include="Views\BasketballStats.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="App\modules\budget.ts" />
@@ -203,6 +209,7 @@
     <TypeScriptCompile Include="App\dashboard.ts" />
     <TypeScriptCompile Include="App\savings.ts" />
     <TypeScriptCompile Include="App\tests\specs.ts" />
+    <TypeScriptCompile Include="BballStats\dashboard.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Boot.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Game.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Level1.ts" />

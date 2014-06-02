@@ -13,6 +13,7 @@ namespace Playground.Helpers
 			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("fonts", "fonts"));
 			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("app", "app"));
 			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("App", "App"));
+			conventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory("BballStats", "BballStats"));
 		}
 	}
 }
