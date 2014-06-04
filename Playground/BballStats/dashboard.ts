@@ -5,8 +5,10 @@ import moment = require('moment');
 export class PlayerViewModel {
     name: string;
     playerNumber: number;
-    active = ko.observable<boolean>(false);
     playing = ko.observable<boolean>(false);
+
+    active = ko.observable<boolean>(false);
+
     fieldGoalAttempts = ko.observable<number>(0);
     twoPointersMade = ko.observable<number>(0);
     threePointersMade = ko.observable<number>(0);
@@ -44,6 +46,7 @@ export class DashBoardViewModel {
     awayScore = ko.observable<number>(0);
     activePlayer: PlayerViewModel = null;
     coords: Array<number> = null;
+
     actions = ko.observableArray<Action>();
     players = ko.observableArray<PlayerViewModel>();
 

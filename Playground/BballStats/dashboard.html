@@ -156,8 +156,8 @@
 	<div class="row">
 		<div class="col-sm-4">
 			<h4>Play by play</h4>
-			<ul data-bind="foreach: actions">
-				<li data-bind="html: explain()"></li>
+			<ul id="play-by-play" class="list-group" data-bind="foreach: actions">
+				<li class="list-group-item" data-bind="html: explain()"></li>
 			</ul>
 		</div>
 		<div class="col-sm-8">

@@ -4,3 +4,8 @@
 
 #record-button {
 }
+
+#play-by-play {
+	overflow-y: scroll;
+	height: 400px;
+}

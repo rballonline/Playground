@@ -2,8 +2,8 @@
     var PlayerViewModel = (function () {
         function PlayerViewModel(name, num, playing) {
             var _this = this;
-            this.active = ko.observable(false);
             this.playing = ko.observable(false);
+            this.active = ko.observable(false);
             this.fieldGoalAttempts = ko.observable(0);
             this.twoPointersMade = ko.observable(0);
             this.threePointersMade = ko.observable(0);
