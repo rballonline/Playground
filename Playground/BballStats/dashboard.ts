@@ -163,13 +163,15 @@ export class DashBoardViewModel {
     });
 
     constructor() {
-        this.players.push(new PlayerViewModel('Ian', 5, true));
+        this.players.push(new PlayerViewModel('Ian', 38, true));
         this.players.push(new PlayerViewModel('Noah', 55, true));
-        this.players.push(new PlayerViewModel('Jared', 35, true));
-        this.players.push(new PlayerViewModel('Eric', 15, true));
-        this.players.push(new PlayerViewModel('Kyren', 45, true));
-        this.players.push(new PlayerViewModel('Kameron', 95, false));
-        this.players.push(new PlayerViewModel('Dominic', 105, false));
+        this.players.push(new PlayerViewModel('Jared', 28, true));
+        this.players.push(new PlayerViewModel('Eric', 42, true));
+        this.players.push(new PlayerViewModel('Kylen', 49, true));
+        this.players.push(new PlayerViewModel('Kameron', 47, false));
+        this.players.push(new PlayerViewModel('Dominic', 7, false));
+        this.players.push(new PlayerViewModel('Beau', 15, false));
+        this.players.push(new PlayerViewModel('Michelle', 20, false));
     }
 
     homeRecordEnabled = ko.computed<boolean>(() => {

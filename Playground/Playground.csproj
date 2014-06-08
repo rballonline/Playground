@@ -60,6 +60,12 @@
     <Reference Include="Microsoft.Owin.Security">
       <HintPath>..\packages\Microsoft.Owin.Security.2.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="Nancy">
       <HintPath>..\packages\Nancy.0.22.2\lib\net40\Nancy.dll</HintPath>
     </Reference>
@@ -98,12 +104,16 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BballModels\Play.cs" />
+    <Compile Include="BballRepos\GameRepo.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Bootstrapper.cs" />
     <Compile Include="Helpers\Startup.cs" />
     <Compile Include="Hubs\SiteHub.cs" />
+    <Compile Include="BballModels\Game.cs" />
+    <Compile Include="BballModels\Player.cs" />
     <Compile Include="Modules\DefaultModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -115,6 +125,10 @@
     <Content Include="App\dashboard.html" />
     <Content Include="BballStats\dashboard.html" />
     <Content Include="BballStats\dashboard.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="BballStats\games.html" />
+    <Content Include="BballStats\games.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="BballStats\main.js" />
@@ -135,6 +149,8 @@
     <Content Include="Content\jasmine.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\almond-custom.js" />
+    <Content Include="BballStats\dashboard.js.map" />
+    <Content Include="BballStats\games.js.map" />
     <None Include="Scripts\amplify-vsdoc.js" />
     <Content Include="Scripts\amplify.js" />
     <Content Include="Scripts\amplify.min.js" />
@@ -213,6 +229,7 @@
     <TypeScriptCompile Include="App\savings.ts" />
     <TypeScriptCompile Include="App\tests\specs.ts" />
     <TypeScriptCompile Include="BballStats\dashboard.ts" />
+    <TypeScriptCompile Include="BballStats\games.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Boot.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Game.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Level1.ts" />

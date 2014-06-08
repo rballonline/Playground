@@ -1,0 +1,12 @@
+﻿<div class="container">
+	<div class="row">
+		<table class="table">
+			<tbody data-bind="foreach: games">
+				<tr>
+					<td data-bind="text: name"</td>
+				</tr>
+			</tbody>
+		</table>
+		<input type="text" data-bind="value: name" /><button data-bind="click: newGame" class="btn btn-primary">New</button>
+	</div>
+</div>
