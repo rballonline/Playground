@@ -89,14 +89,14 @@ export class DashBoardViewModel {
 
     homeFreeThrowPercentage = ko.computed<string>(() => {
         if (this.homeFreeThrowAttempts() == 0) return '0%';
-        return (parseFloat((this.homeFreeThrowsMade() / this.homeFreeThrowAttempts()).toFixed(2)) * 100).toString();
+        return (parseFloat((this.homeFreeThrowsMade() / this.homeFreeThrowAttempts()).toFixed(2)) * 100).toString() + '%';
     });
     awayFreeThrowPercentage = ko.computed<string>(() => {
         if (this.awayFreeThrowAttempts() == 0) return '0%';
-        return (parseFloat((this.awayFreeThrowsMade() / this.awayFreeThrowAttempts()).toFixed(2)) * 100).toString();
+        return (parseFloat((this.awayFreeThrowsMade() / this.awayFreeThrowAttempts()).toFixed(2)) * 100).toString() + '%';
     });
-    diffFreeThrowPercentage = ko.computed<number>(() => {
-        return parseInt(this.homeFreeThrowPercentage()) - parseInt(this.awayFreeThrowPercentage());
+    diffFreeThrowPercentage = ko.computed<string>(() => {
+        return (parseInt(this.homeFreeThrowPercentage()) - parseInt(this.awayFreeThrowPercentage())) +  '%';
     });
 
     homeDefensiveRebounds = ko.observable<number>(0);
@@ -108,26 +108,26 @@ export class DashBoardViewModel {
     homeOffensiveReboundPercentage = ko.computed<string>(() => {
         if (this.homeOffensiveRebounds() == 0) return '0%';
         else if (this.awayDefensiveRebounds() == 0) return '100%';
-        return (parseFloat((this.homeOffensiveRebounds() / (this.homeOffensiveRebounds() + this.awayDefensiveRebounds())).toFixed(2)) * 100).toString();
+        return (parseFloat((this.homeOffensiveRebounds() / (this.homeOffensiveRebounds() + this.awayDefensiveRebounds())).toFixed(2)) * 100).toString() + '%';
     });
     awayOffensiveReboundPercentage = ko.computed<string>(() => {
         if (this.awayOffensiveRebounds() == 0) return '0%';
         else if (this.homeDefensiveRebounds() == 0) return '100%';
-        return (parseFloat((this.awayOffensiveRebounds() / (this.awayOffensiveRebounds() + this.homeDefensiveRebounds())).toFixed(2)) * 100).toString();
+        return (parseFloat((this.awayOffensiveRebounds() / (this.awayOffensiveRebounds() + this.homeDefensiveRebounds())).toFixed(2)) * 100).toString() + '%';
     });
-    diffOffensiveReboundPercentage = ko.computed<number>(() => { return parseInt(this.homeOffensiveReboundPercentage()) - parseInt(this.awayOffensiveReboundPercentage()) });
+    diffOffensiveReboundPercentage = ko.computed<string>(() => { return (parseInt(this.homeOffensiveReboundPercentage()) - parseInt(this.awayOffensiveReboundPercentage())) + '%' });
 
     homeDefensiveReboundPercentage = ko.computed<string>(() => {
         if (this.homeDefensiveRebounds() == 0) return '0%';
         else if (this.awayOffensiveRebounds() == 0) return '100%';
-        return (parseFloat((this.homeDefensiveRebounds() / (this.homeDefensiveRebounds() + this.awayOffensiveRebounds())).toFixed(2)) * 100).toString();
+        return (parseFloat((this.homeDefensiveRebounds() / (this.homeDefensiveRebounds() + this.awayOffensiveRebounds())).toFixed(2)) * 100).toString() + '%';
     });
     awayDefensiveReboundPercentage = ko.computed<string>(() => {
         if (this.awayDefensiveRebounds() == 0) return '0%';
         else if (this.homeOffensiveRebounds() == 0) return '100%';
-        return (parseFloat((this.awayDefensiveRebounds() / (this.awayDefensiveRebounds() + this.homeOffensiveRebounds())).toFixed(2)) * 100).toString();
+        return (parseFloat((this.awayDefensiveRebounds() / (this.awayDefensiveRebounds() + this.homeOffensiveRebounds())).toFixed(2)) * 100).toString() + '%';
     });
-    diffDefensiveReboundPercentage = ko.computed<number>(() => { return parseInt(this.homeDefensiveReboundPercentage()) - parseInt(this.awayDefensiveReboundPercentage()) });
+    diffDefensiveReboundPercentage = ko.computed<string>(() => { return (parseInt(this.homeDefensiveReboundPercentage()) - parseInt(this.awayDefensiveReboundPercentage())) + '%' });
 
     homeCommittedFouls = ko.observable<number>(0);
     awayCommittedFouls = ko.observable<number>(0);

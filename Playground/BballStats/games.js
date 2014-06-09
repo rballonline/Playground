@@ -5,6 +5,8 @@
             this.id = id;
             this.name(name);
         }
+        GameViewModel.prototype.createNew = function () {
+        };
         return GameViewModel;
     })();
 

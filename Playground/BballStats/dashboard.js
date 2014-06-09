@@ -88,15 +88,15 @@
             this.homeFreeThrowPercentage = ko.computed(function () {
                 if (_this.homeFreeThrowAttempts() == 0)
                     return '0%';
-                return (parseFloat((_this.homeFreeThrowsMade() / _this.homeFreeThrowAttempts()).toFixed(2)) * 100).toString();
+                return (parseFloat((_this.homeFreeThrowsMade() / _this.homeFreeThrowAttempts()).toFixed(2)) * 100).toString() + '%';
             });
             this.awayFreeThrowPercentage = ko.computed(function () {
                 if (_this.awayFreeThrowAttempts() == 0)
                     return '0%';
-                return (parseFloat((_this.awayFreeThrowsMade() / _this.awayFreeThrowAttempts()).toFixed(2)) * 100).toString();
+                return (parseFloat((_this.awayFreeThrowsMade() / _this.awayFreeThrowAttempts()).toFixed(2)) * 100).toString() + '%';
             });
             this.diffFreeThrowPercentage = ko.computed(function () {
-                return parseInt(_this.homeFreeThrowPercentage()) - parseInt(_this.awayFreeThrowPercentage());
+                return (parseInt(_this.homeFreeThrowPercentage()) - parseInt(_this.awayFreeThrowPercentage())) + '%';
             });
             this.homeDefensiveRebounds = ko.observable(0);
             this.awayDefensiveRebounds = ko.observable(0);
@@ -110,34 +110,34 @@
                     return '0%';
                 else if (_this.awayDefensiveRebounds() == 0)
                     return '100%';
-                return (parseFloat((_this.homeOffensiveRebounds() / (_this.homeOffensiveRebounds() + _this.awayDefensiveRebounds())).toFixed(2)) * 100).toString();
+                return (parseFloat((_this.homeOffensiveRebounds() / (_this.homeOffensiveRebounds() + _this.awayDefensiveRebounds())).toFixed(2)) * 100).toString() + '%';
             });
             this.awayOffensiveReboundPercentage = ko.computed(function () {
                 if (_this.awayOffensiveRebounds() == 0)
                     return '0%';
                 else if (_this.homeDefensiveRebounds() == 0)
                     return '100%';
-                return (parseFloat((_this.awayOffensiveRebounds() / (_this.awayOffensiveRebounds() + _this.homeDefensiveRebounds())).toFixed(2)) * 100).toString();
+                return (parseFloat((_this.awayOffensiveRebounds() / (_this.awayOffensiveRebounds() + _this.homeDefensiveRebounds())).toFixed(2)) * 100).toString() + '%';
             });
             this.diffOffensiveReboundPercentage = ko.computed(function () {
-                return parseInt(_this.homeOffensiveReboundPercentage()) - parseInt(_this.awayOffensiveReboundPercentage());
+                return (parseInt(_this.homeOffensiveReboundPercentage()) - parseInt(_this.awayOffensiveReboundPercentage())) + '%';
             });
             this.homeDefensiveReboundPercentage = ko.computed(function () {
                 if (_this.homeDefensiveRebounds() == 0)
                     return '0%';
                 else if (_this.awayOffensiveRebounds() == 0)
                     return '100%';
-                return (parseFloat((_this.homeDefensiveRebounds() / (_this.homeDefensiveRebounds() + _this.awayOffensiveRebounds())).toFixed(2)) * 100).toString();
+                return (parseFloat((_this.homeDefensiveRebounds() / (_this.homeDefensiveRebounds() + _this.awayOffensiveRebounds())).toFixed(2)) * 100).toString() + '%';
             });
             this.awayDefensiveReboundPercentage = ko.computed(function () {
                 if (_this.awayDefensiveRebounds() == 0)
                     return '0%';
                 else if (_this.homeOffensiveRebounds() == 0)
                     return '100%';
-                return (parseFloat((_this.awayDefensiveRebounds() / (_this.awayDefensiveRebounds() + _this.homeOffensiveRebounds())).toFixed(2)) * 100).toString();
+                return (parseFloat((_this.awayDefensiveRebounds() / (_this.awayDefensiveRebounds() + _this.homeOffensiveRebounds())).toFixed(2)) * 100).toString() + '%';
             });
             this.diffDefensiveReboundPercentage = ko.computed(function () {
-                return parseInt(_this.homeDefensiveReboundPercentage()) - parseInt(_this.awayDefensiveReboundPercentage());
+                return (parseInt(_this.homeDefensiveReboundPercentage()) - parseInt(_this.awayDefensiveReboundPercentage())) + '%';
             });
             this.homeCommittedFouls = ko.observable(0);
             this.awayCommittedFouls = ko.observable(0);
