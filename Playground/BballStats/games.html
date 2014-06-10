@@ -1,12 +1,17 @@
 ﻿<div class="container">
 	<div class="row">
+		<h1>Existing Games</h1>
 		<table class="table">
 			<tbody data-bind="foreach: games">
 				<tr>
-					<td data-bind="text: name"</td>
+					<td><a data-bind="text: name, attr: { href: '#/game/' + clientId + '/' + serverId }"></a></td>
+					<td><button data-bind="click: $parent.removeGame" class="btn btn-warning">Remove</button></td>
 				</tr>
 			</tbody>
 		</table>
-		<input type="text" data-bind="value: name" /><button data-bind="click: newGame" class="btn btn-primary">New</button>
+		<label>Game name:</label>
+		<input type="text" class="form-control" data-bind="value: newGameName" placeholder="EX: VS Strikers" />
+		<hr />
+		<button data-bind="click: addGame" class="btn btn-primary btn-block">New</button>
 	</div>
 </div>

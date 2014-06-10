@@ -155,7 +155,7 @@
 	<div class="row">
 		<div class="col-sm-4">
 			<h4>Play by play</h4>
-			<ul id="play-by-play" class="list-group" data-bind="foreach: actions">
+			<ul id="play-by-play" class="list-group" data-bind="foreach: plays">
 				<li class="list-group-item" data-bind="html: explain()"></li>
 			</ul>
 		</div>
@@ -178,7 +178,7 @@
 						<th>PTO</th>
 					</tr>
 				</thead>
-				<tbody data-bind="foreach: players">
+				<tbody data-bind="foreach: playerStats">
 					<tr>
 						<td data-bind="text: playerNumber"></td>
 						<td data-bind="text: name"></td>

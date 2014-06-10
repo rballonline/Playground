@@ -1,10 +1,13 @@
 ﻿import ko = require('knockout');
 import _ = require('lodash');
 import moment = require('moment');
+import gameService = require('modules/gameService');
 
-export class PlayerViewModel {
+export class PlayerStatViewModel {
     name: string;
     playerNumber: number;
+    clientId: string;
+    serverId: string;
     playing = ko.observable<boolean>(false);
 
     active = ko.observable<boolean>(false);
@@ -29,14 +32,18 @@ export class PlayerViewModel {
     passTurnover = ko.observable<number>(0);
     stealTurnovers = ko.observable<number>(0);
 
-    constructor(name: string, num: number, playing: boolean) {
+    constructor(name: string, num: number, clientId: string, serverId: string) {
         this.name = name;
         this.playerNumber = num;
-        this.playing(playing);
+        this.clientId = clientId;
+        this.serverId = serverId;
     }
 }
 
 export class DashBoardViewModel {
+    private GameService = new gameService.GameService();
+
+    clientId;
     currentPeriod = ko.observable<number>(1);
     editPlayersMode = ko.observable<boolean>(false);
     makingSubstitutions = ko.observable<boolean>(false);
@@ -44,11 +51,11 @@ export class DashBoardViewModel {
     activeAwayButton = ko.observable<string>('');
     homeScore = ko.observable<number>(0);
     awayScore = ko.observable<number>(0);
-    activePlayer: PlayerViewModel = null;
+    activePlayer: PlayerStatViewModel = null;
     coords: Array<number> = null;
 
-    actions = ko.observableArray<Action>();
-    players = ko.observableArray<PlayerViewModel>();
+    plays = ko.observableArray<Action>();
+    playerStats = ko.observableArray<PlayerStatViewModel>();
 
     homeFieldGoalAttempts = ko.observable<number>(0);
     awayFieldGoalAttempts = ko.observable<number>(0);
@@ -143,35 +150,26 @@ export class DashBoardViewModel {
     diffStealTurnovers = ko.computed<number>(() => { return this.homeStealTurnovers() - this.awayStealTurnovers() });
 
     benchedPlayers = ko.computed(() => {
-        var players = new Array<PlayerViewModel>();
-        _.each(this.players(), (player) => {
+        var playerStats = new Array<PlayerStatViewModel>();
+        _.each(this.playerStats(), (player) => {
             if (!player.playing()) {
-                players.push(player);
+                playerStats.push(player);
             }
         });
-        return players;
+        return playerStats;
     });
 
     currentPlayers = ko.computed(() => {
-        var players = new Array<PlayerViewModel>();
-        _.each(this.players(), (player) => {
+        var playerStats = new Array<PlayerStatViewModel>();
+        _.each(this.playerStats(), (player) => {
             if (player.playing()) {
-                players.push(player);
+                playerStats.push(player);
             }
         });
-        return players;
+        return playerStats;
     });
 
     constructor() {
-        this.players.push(new PlayerViewModel('Ian', 38, true));
-        this.players.push(new PlayerViewModel('Noah', 55, true));
-        this.players.push(new PlayerViewModel('Jared', 28, true));
-        this.players.push(new PlayerViewModel('Eric', 42, true));
-        this.players.push(new PlayerViewModel('Kylen', 49, true));
-        this.players.push(new PlayerViewModel('Kameron', 47, false));
-        this.players.push(new PlayerViewModel('Dominic', 7, false));
-        this.players.push(new PlayerViewModel('Beau', 15, false));
-        this.players.push(new PlayerViewModel('Michelle', 20, false));
     }
 
     homeRecordEnabled = ko.computed<boolean>(() => {
@@ -180,7 +178,7 @@ export class DashBoardViewModel {
             buttonActive = true;
             var playerActive = false;
 
-            _.each<PlayerViewModel>(this.currentPlayers(), (player) => {
+            _.each<PlayerStatViewModel>(this.currentPlayers(), (player) => {
                 if (player.active()) {
                     playerActive = true;
                     return;
@@ -199,19 +197,19 @@ export class DashBoardViewModel {
         return this.activeAwayButton() != '';
     });
 
-    choosePlayer = (player: PlayerViewModel) => {
-        _.each<PlayerViewModel>(this.currentPlayers(), (player) => {
+    choosePlayer = (player: PlayerStatViewModel) => {
+        _.each<PlayerStatViewModel>(this.currentPlayers(), (player) => {
             player.active(false);
         });
         player.active(true);
         this.activePlayer = player;
     }
 
-    addPlayer = (player: PlayerViewModel) => {
+    addPlayer = (player: PlayerStatViewModel) => {
         player.playing(true);
     }
 
-    removePlayer = (player:PlayerViewModel) => {
+    removePlayer = (player:PlayerStatViewModel) => {
         player.playing(false);
     }
 
@@ -231,8 +229,14 @@ export class DashBoardViewModel {
         this.activeAwayButton(buttonToActivate);
     }
 
+    save() {
+        var game = { plays: this.plays(), playerStats: this.playerStats() };
+        this.GameService.saveGame(game);
+        localStorage.setItem('game-' + this.clientId, ko.toJSON(game));
+    }
+
     recordAway() {
-        this.actions.unshift(new Action(this.activeAwayButton(), this.currentPeriod()));
+        this.plays.unshift(new Action(this.activeAwayButton(), this.currentPeriod()));
 
         switch (this.activeAwayButton()) {
             case 'made 2 pointer':
@@ -279,11 +283,13 @@ export class DashBoardViewModel {
                 break;
         }
 
+        this.save();
+
         this.activeAwayButton('');
     }
 
     recordHome() {
-        this.actions.unshift(new Action(this.activeButton(), this.currentPeriod(), this.activePlayer, this.coords));
+        this.plays.unshift(new Action(this.activeButton(), this.currentPeriod(), this.activePlayer.playerNumber, this.activePlayer.name, this.coords));
 
         switch (this.activeButton()) {
             case 'made 2 pointer':
@@ -345,15 +351,67 @@ export class DashBoardViewModel {
                 break;
         }
 
+        this.save();
+
         this.activeButton('');
         _.each(this.currentPlayers(), (player) => {
             player.active(false);
-            // super
         });
     }
 
-    activate = () => {
+    fillPlayers(players) {
+        _.each(players, (player: any) => {
+            this.playerStats.push(new PlayerStatViewModel(player.name, player.playerNumber, player.clientId, player.serverId));
+        });
+    }
 
+    fillPlays(plays) {
+        _.each(plays, (play: any) => {
+            this.plays.push(new Action(play.action, play.qtr, play.playerNumber, play.playerName));
+        });
+    }
+
+    fillPlayerStats(playerStats) {
+        _.each(playerStats, (playerStat: any) => {
+            var vm = new PlayerStatViewModel(playerStat.name, playerStat.playerNumber, playerStat.clientId, playerStat.serverId);
+
+            vm.committedFouls(playerStat.committedFouls);
+            vm.defensiveRebounds(playerStat.defensiveRebounds);
+            vm.fieldGoalAttempts(playerStat.fieldGoalAttempts);
+            vm.forcedFouls(playerStat.forcedFouls);
+            vm.freeThrowAttempts(playerStat.freeThrowAttempts);
+            vm.freeThrowsMade(playerStat.freeThrowsMade);
+            vm.offensiveRebounds(playerStat.offensiveRebounds);
+            vm.passTurnover(playerStat.passTurnover);
+            vm.playing(playerStat.playing);
+            vm.stealTurnovers(playerStat.stealTurnovers);
+            vm.threePointersMade(playerStat.threePointersMade);
+            vm.twoPointersMade(playerStat.twoPointersMade);
+
+            this.playerStats.push(vm);
+        });
+    }
+
+    activate = (clientId, serverId) => {
+        this.clientId = clientId;
+        this.GameService.getGame(serverId).done((response) => {
+            this.fillPlays(response.plays);
+            this.fillPlayerStats(response.playerStats);
+        }).fail(() => {
+            if (localStorage.getItem('game-' + clientId)) {
+                this.fillPlays(JSON.parse(localStorage.getItem('game-' + clientId)).plays);
+                this.fillPlayerStats(JSON.parse(localStorage.getItem('game-' + clientId)).playerStats);
+            }
+            else {
+                this.GameService.getPlayers().done((response) => {
+                    this.fillPlayers(response.players);
+                }).fail(() => {
+                    if (localStorage.getItem('players')) {
+                        this.fillPlayers(JSON.parse(localStorage.getItem('players')));
+                    }
+                });
+            }
+        });
     }
 
     setCurrentPeriod = (period : number) => {
@@ -365,20 +423,22 @@ export class Action {
     time: number;
     action: string;
     quarter: number;
-    player: PlayerViewModel;
+    playerNumber: number;
+    playerName: string;
     coords: Array<number>;
 
-    constructor(action: string, qtr: number, player?: PlayerViewModel, coords?: Array<number>) {
+    constructor(action: string, qtr: number, playerNumber?: number, playerName?: string, coords?: Array<number>) {
         this.action = action;
         this.quarter = qtr;
-        this.player = player;
+        this.playerNumber = playerNumber;
+        this.playerName = playerName;
         this.coords = coords;
         this.time = moment().valueOf();
     }
 
     explain = () => {
-        if (this.player) {
-            return '<b>#' + this.player.playerNumber + ' ' + this.player.name + '</b> ' + this.action;
+        if (this.playerNumber && this.playerName) {
+            return '<b>#' + this.playerNumber + ' ' + this.playerName + '</b> ' + this.action;
         }
         else {
             return '<b>Opponents</b> ' + this.action; 

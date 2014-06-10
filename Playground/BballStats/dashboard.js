@@ -1,6 +1,6 @@
-﻿define(["require", "exports", 'knockout', 'lodash', 'moment'], function(require, exports, ko, _, moment) {
-    var PlayerViewModel = (function () {
-        function PlayerViewModel(name, num, playing) {
+﻿define(["require", "exports", 'knockout', 'lodash', 'moment', 'modules/gameService'], function(require, exports, ko, _, moment, gameService) {
+    var PlayerStatViewModel = (function () {
+        function PlayerStatViewModel(name, num, clientId, serverId) {
             var _this = this;
             this.playing = ko.observable(false);
             this.active = ko.observable(false);
@@ -27,15 +27,17 @@
             this.stealTurnovers = ko.observable(0);
             this.name = name;
             this.playerNumber = num;
-            this.playing(playing);
+            this.clientId = clientId;
+            this.serverId = serverId;
         }
-        return PlayerViewModel;
+        return PlayerStatViewModel;
     })();
-    exports.PlayerViewModel = PlayerViewModel;
+    exports.PlayerStatViewModel = PlayerStatViewModel;
 
     var DashBoardViewModel = (function () {
         function DashBoardViewModel() {
             var _this = this;
+            this.GameService = new gameService.GameService();
             this.currentPeriod = ko.observable(1);
             this.editPlayersMode = ko.observable(false);
             this.makingSubstitutions = ko.observable(false);
@@ -45,8 +47,8 @@
             this.awayScore = ko.observable(0);
             this.activePlayer = null;
             this.coords = null;
-            this.actions = ko.observableArray();
-            this.players = ko.observableArray();
+            this.plays = ko.observableArray();
+            this.playerStats = ko.observableArray();
             this.homeFieldGoalAttempts = ko.observable(0);
             this.awayFieldGoalAttempts = ko.observable(0);
             this.diffFieldGoalAttempts = ko.computed(function () {
@@ -160,22 +162,22 @@
                 return _this.homeStealTurnovers() - _this.awayStealTurnovers();
             });
             this.benchedPlayers = ko.computed(function () {
-                var players = new Array();
-                _.each(_this.players(), function (player) {
+                var playerStats = new Array();
+                _.each(_this.playerStats(), function (player) {
                     if (!player.playing()) {
-                        players.push(player);
+                        playerStats.push(player);
                     }
                 });
-                return players;
+                return playerStats;
             });
             this.currentPlayers = ko.computed(function () {
-                var players = new Array();
-                _.each(_this.players(), function (player) {
+                var playerStats = new Array();
+                _.each(_this.playerStats(), function (player) {
                     if (player.playing()) {
-                        players.push(player);
+                        playerStats.push(player);
                     }
                 });
-                return players;
+                return playerStats;
             });
             this.homeRecordEnabled = ko.computed(function () {
                 var buttonActive = false;
@@ -220,20 +222,29 @@
             this.doneMakingSubstitutions = function () {
                 _this.makingSubstitutions(false);
             };
-            this.activate = function () {
+            this.activate = function (clientId, serverId) {
+                _this.clientId = clientId;
+                _this.GameService.getGame(serverId).done(function (response) {
+                    _this.fillPlays(response.plays);
+                    _this.fillPlayerStats(response.playerStats);
+                }).fail(function () {
+                    if (localStorage.getItem('game-' + clientId)) {
+                        _this.fillPlays(JSON.parse(localStorage.getItem('game-' + clientId)).plays);
+                        _this.fillPlayerStats(JSON.parse(localStorage.getItem('game-' + clientId)).playerStats);
+                    } else {
+                        _this.GameService.getPlayers().done(function (response) {
+                            _this.fillPlayers(response.players);
+                        }).fail(function () {
+                            if (localStorage.getItem('players')) {
+                                _this.fillPlayers(JSON.parse(localStorage.getItem('players')));
+                            }
+                        });
+                    }
+                });
             };
             this.setCurrentPeriod = function (period) {
                 _this.currentPeriod(period);
             };
-            this.players.push(new PlayerViewModel('Ian', 38, true));
-            this.players.push(new PlayerViewModel('Noah', 55, true));
-            this.players.push(new PlayerViewModel('Jared', 28, true));
-            this.players.push(new PlayerViewModel('Eric', 42, true));
-            this.players.push(new PlayerViewModel('Kylen', 49, true));
-            this.players.push(new PlayerViewModel('Kameron', 47, false));
-            this.players.push(new PlayerViewModel('Dominic', 7, false));
-            this.players.push(new PlayerViewModel('Beau', 15, false));
-            this.players.push(new PlayerViewModel('Michelle', 20, false));
         }
         DashBoardViewModel.prototype.activateButton = function (buttonToActivate) {
             this.activeButton(buttonToActivate);
@@ -243,8 +254,14 @@
             this.activeAwayButton(buttonToActivate);
         };
 
+        DashBoardViewModel.prototype.save = function () {
+            var game = { plays: this.plays(), playerStats: this.playerStats() };
+            this.GameService.saveGame(game);
+            localStorage.setItem('game-' + this.clientId, ko.toJSON(game));
+        };
+
         DashBoardViewModel.prototype.recordAway = function () {
-            this.actions.unshift(new Action(this.activeAwayButton(), this.currentPeriod()));
+            this.plays.unshift(new Action(this.activeAwayButton(), this.currentPeriod()));
 
             switch (this.activeAwayButton()) {
                 case 'made 2 pointer':
@@ -291,11 +308,13 @@
                     break;
             }
 
+            this.save();
+
             this.activeAwayButton('');
         };
 
         DashBoardViewModel.prototype.recordHome = function () {
-            this.actions.unshift(new Action(this.activeButton(), this.currentPeriod(), this.activePlayer, this.coords));
+            this.plays.unshift(new Action(this.activeButton(), this.currentPeriod(), this.activePlayer.playerNumber, this.activePlayer.name, this.coords));
 
             switch (this.activeButton()) {
                 case 'made 2 pointer':
@@ -357,10 +376,47 @@
                     break;
             }
 
+            this.save();
+
             this.activeButton('');
             _.each(this.currentPlayers(), function (player) {
                 player.active(false);
-                // super
+            });
+        };
+
+        DashBoardViewModel.prototype.fillPlayers = function (players) {
+            var _this = this;
+            _.each(players, function (player) {
+                _this.playerStats.push(new PlayerStatViewModel(player.name, player.playerNumber, player.clientId, player.serverId));
+            });
+        };
+
+        DashBoardViewModel.prototype.fillPlays = function (plays) {
+            var _this = this;
+            _.each(plays, function (play) {
+                _this.plays.push(new Action(play.action, play.qtr, play.playerNumber, play.playerName));
+            });
+        };
+
+        DashBoardViewModel.prototype.fillPlayerStats = function (playerStats) {
+            var _this = this;
+            _.each(playerStats, function (playerStat) {
+                var vm = new PlayerStatViewModel(playerStat.name, playerStat.playerNumber, playerStat.clientId, playerStat.serverId);
+
+                vm.committedFouls(playerStat.committedFouls);
+                vm.defensiveRebounds(playerStat.defensiveRebounds);
+                vm.fieldGoalAttempts(playerStat.fieldGoalAttempts);
+                vm.forcedFouls(playerStat.forcedFouls);
+                vm.freeThrowAttempts(playerStat.freeThrowAttempts);
+                vm.freeThrowsMade(playerStat.freeThrowsMade);
+                vm.offensiveRebounds(playerStat.offensiveRebounds);
+                vm.passTurnover(playerStat.passTurnover);
+                vm.playing(playerStat.playing);
+                vm.stealTurnovers(playerStat.stealTurnovers);
+                vm.threePointersMade(playerStat.threePointersMade);
+                vm.twoPointersMade(playerStat.twoPointersMade);
+
+                _this.playerStats.push(vm);
             });
         };
         return DashBoardViewModel;
@@ -368,18 +424,19 @@
     exports.DashBoardViewModel = DashBoardViewModel;
 
     var Action = (function () {
-        function Action(action, qtr, player, coords) {
+        function Action(action, qtr, playerNumber, playerName, coords) {
             var _this = this;
             this.explain = function () {
-                if (_this.player) {
-                    return '<b>#' + _this.player.playerNumber + ' ' + _this.player.name + '</b> ' + _this.action;
+                if (_this.playerNumber && _this.playerName) {
+                    return '<b>#' + _this.playerNumber + ' ' + _this.playerName + '</b> ' + _this.action;
                 } else {
                     return '<b>Opponents</b> ' + _this.action;
                 }
             };
             this.action = action;
             this.quarter = qtr;
-            this.player = player;
+            this.playerNumber = playerNumber;
+            this.playerName = playerName;
             this.coords = coords;
             this.time = moment().valueOf();
         }

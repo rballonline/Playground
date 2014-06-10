@@ -132,6 +132,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="BballStats\main.js" />
+    <Content Include="BballStats\modules\gameService.js" />
+    <Content Include="BballStats\modules\guid.js" />
+    <Content Include="BballStats\players.html" />
+    <Content Include="BballStats\players.js" />
     <Content Include="BballStats\shell.html" />
     <Content Include="BballStats\shell.js" />
     <Content Include="Content\BballStats.css" />
@@ -151,6 +155,10 @@
     <Content Include="Scripts\almond-custom.js" />
     <Content Include="BballStats\dashboard.js.map" />
     <Content Include="BballStats\games.js.map" />
+    <Content Include="BballStats\players.js.map" />
+    <Content Include="BballStats\modules\gameService.js.map" />
+    <Content Include="BballStats\modules\guid.js.map" />
+    <Content Include="Content\bball.appcache" />
     <None Include="Scripts\amplify-vsdoc.js" />
     <Content Include="Scripts\amplify.js" />
     <Content Include="Scripts\amplify.min.js" />
@@ -230,6 +238,9 @@
     <TypeScriptCompile Include="App\tests\specs.ts" />
     <TypeScriptCompile Include="BballStats\dashboard.ts" />
     <TypeScriptCompile Include="BballStats\games.ts" />
+    <TypeScriptCompile Include="BballStats\modules\gameService.ts" />
+    <TypeScriptCompile Include="BballStats\modules\guid.ts" />
+    <TypeScriptCompile Include="BballStats\players.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Boot.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Game.ts" />
     <TypeScriptCompile Include="Scripts\castlevania\Level1.ts" />
