@@ -193,6 +193,8 @@
     <Content Include="Scripts\lodash.min.js" />
     <Content Include="Scripts\phaser.js" />
     <Content Include="Scripts\phaser.min.js" />
+    <Content Include="Scripts\vue.js" />
+    <Content Include="Scripts\vue.min.js" />
     <Content Include="weyland-config.js" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
@@ -228,6 +230,7 @@
     <Content Include="Views\CastleVania.cshtml" />
     <Content Include="Views\Golf.cshtml" />
     <Content Include="Views\BasketballStats.cshtml" />
+    <Content Include="Views\Water.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="App\modules\budget.ts" />

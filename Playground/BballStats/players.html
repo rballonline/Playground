@@ -1,0 +1,20 @@
+﻿<div class="container">
+	<div class="row">
+		<h1>Players</h1>
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Number</th>
+					<th>Name</th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: players">
+				<tr><td data-bind="text: playerNumber"></td><td data-bind="text: name"></td><td><button data-bind="click: $parent.removePlayer" class="btn btn-warning">Remove</button></td></tr>
+			</tbody>
+		</table>
+
+		Number: <input type="number" data-bind="value: newPlayerNumber" size="2" />
+		Name: <input type="text" data-bind="value: newPlayerName" />
+		<button class="btn btn-primary" data-bind="click: addPlayer">Save</button>
+	</div>
+</div>

@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <title>Water intake</title>
+</head>
+<body>
+  <div id="water">
+    <input type="text" value="{{weight}}" /> Ounces: {{ounces}}
+
+		<br />{{weight}} oz {{weight * 0.62}}
+  </div>
+	<script src="Scripts/vue.js"></script>
+	<script>
+		var demo = new Vue({
+			el: '#water',
+			data: {
+				weight: 100
+			},
+			computed: {				
+				ounces: function () {
+					return this.weight * 0.62;
+				}
+			}
+		});
+	</script>
+</body>
+</html>
