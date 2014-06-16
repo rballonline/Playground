@@ -394,6 +394,10 @@ export class DashBoardViewModel {
 
     activate = (clientId, serverId) => {
         this.clientId = clientId;
+
+        this.plays([]);
+        this.playerStats([]);
+
         this.GameService.getGame(serverId).done((response) => {
             this.fillPlays(response.plays);
             this.fillPlayerStats(response.playerStats);

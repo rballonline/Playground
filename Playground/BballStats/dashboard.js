@@ -224,6 +224,10 @@
             };
             this.activate = function (clientId, serverId) {
                 _this.clientId = clientId;
+
+                _this.plays([]);
+                _this.playerStats([]);
+
                 _this.GameService.getGame(serverId).done(function (response) {
                     _this.fillPlays(response.plays);
                     _this.fillPlayerStats(response.playerStats);
