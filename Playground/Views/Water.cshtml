@@ -11,20 +11,39 @@
 </head>
 <body>
   <div id="water">
-    <input type="text" value="{{weight}}" /> Ounces: {{ounces}}
+    Your weight: <input type="text" v-model="weight" /> 
+		<br />Total Ounces needed per day: {{ounces}} 
 
-		<br />{{weight}} oz {{weight * 0.62}}
+		<br />Should have already drank: {{amountShouldDrank}}
+		<br />How much you've drank: <input type="text" v-model="intake" />
+		<br />Need to drink: {{immediatelyDrink}}
+
   </div>
 	<script src="Scripts/vue.js"></script>
+	<script src="Scripts/moment.js"></script>
 	<script>
 		var demo = new Vue({
 			el: '#water',
 			data: {
-				weight: 100
+				weight: 100,
+				intake: 0
 			},
 			computed: {				
 				ounces: function () {
 					return this.weight * 0.62;
+				},
+				percentFinished: function () {
+					return ((this.intake / this.ounces) * 100).toFixed(0);
+				},
+				immediatelyDrink: function () {
+					var toDrink = this.amountShouldDrank - this.intake;
+					if (toDrink < 0) {
+						return 0
+					}
+					return toDrink;
+				},
+				amountShouldDrank: function () {
+					return (this.ounces * ((moment().hour() + 1) / 24)).toFixed(2);
 				}
 			}
 		});
