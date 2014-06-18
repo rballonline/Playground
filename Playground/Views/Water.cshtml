@@ -15,32 +15,51 @@
 		<br />Total Ounces needed per day: {{ounces}} 
 
 		<br />Should have already drank: {{amountShouldDrank}}
-		<br />How much you've drank: <input type="text" v-model="intake" />
-		<br />Need to drink: {{immediatelyDrink}}
-
+		<br />I consumed: <input type="text" v-model="intake" /> more ounces <button v-on="click: addWater">Add</button>
+		<h6>Already consumed</h6>
+		<ul>
+			<li v-repeat="totalToday">{{$value}}</li>
+		</ul>
+		<br />Need to drink to catch up: {{immediatelyDrink}}
+		<br />Progress of daily water: <progress value="{{percentFinished}}" max="100"></progress>
   </div>
 	<script src="Scripts/vue.js"></script>
+	<script src="Scripts/lodash.js"></script>
 	<script src="Scripts/moment.js"></script>
 	<script>
 		var demo = new Vue({
 			el: '#water',
 			data: {
 				weight: 100,
-				intake: 0
+				intake: 0,
+				totalToday: [],
+			},
+			methods: {
+				addWater: function (e) {
+					this.totalToday.push(this.intake);
+				}
 			},
 			computed: {				
 				ounces: function () {
-					return this.weight * 0.62;
+					return this.weight * 0.65;
 				},
 				percentFinished: function () {
-					return ((this.intake / this.ounces) * 100).toFixed(0);
+					var total = 0;
+					_.each(this.totalToday, function (amount) {
+						total += parseInt(amount, 10);
+					});
+					return ((total / this.ounces) * 100).toFixed(0);
 				},
 				immediatelyDrink: function () {
-					var toDrink = this.amountShouldDrank - this.intake;
+					var total = 0;
+					_.each(this.totalToday, function (amount) {
+						total += parseInt(amount);
+					});
+					var toDrink = this.amountShouldDrank - total;
 					if (toDrink < 0) {
 						return 0
 					}
-					return toDrink;
+					return toDrink.toFixed(2);
 				},
 				amountShouldDrank: function () {
 					return (this.ounces * ((moment().hour() + 1) / 24)).toFixed(2);
