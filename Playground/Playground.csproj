@@ -120,11 +120,15 @@
   <ItemGroup>
     <Content Include="App\dashboard.js" />
     <Content Include="App\main.js" />
+    <Content Include="App\modules\budget.js" />
+    <Content Include="App\modules\hub.js" />
+    <Content Include="App\modules\payPeriods.js" />
     <Content Include="App\savings.html" />
     <Content Include="App\savings.js" />
     <Content Include="App\shell.html" />
     <Content Include="App\shell.js" />
     <Content Include="App\dashboard.html" />
+    <Content Include="App\tests\specs.js" />
     <Content Include="BballStats\dashboard.html" />
     <Content Include="BballStats\dashboard.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
