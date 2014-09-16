@@ -118,8 +118,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App\dashboard.js" />
     <Content Include="App\main.js" />
     <Content Include="App\savings.html" />
+    <Content Include="App\savings.js" />
     <Content Include="App\shell.html" />
     <Content Include="App\shell.js" />
     <Content Include="App\dashboard.html" />
@@ -165,6 +167,24 @@
     <Content Include="Scripts\blanket.min.js" />
     <Content Include="Scripts\blanket_jasmine.min.js" />
     <Content Include="Scripts\boot.js" />
+    <Content Include="Scripts\castlevania\Boot.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\castlevania\game.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\castlevania\Level1.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\castlevania\MainMenu.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\castlevania\Player.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\castlevania\Preloader.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\console.js" />
     <Content Include="Scripts\domReady.js" />
     <Content Include="Scripts\durandal\activator.js" />
@@ -183,6 +203,21 @@
     <Content Include="Scripts\durandal\transitions\entrance.js" />
     <Content Include="Scripts\durandal\viewEngine.js" />
     <Content Include="Scripts\durandal\viewLocator.js" />
+    <Content Include="Scripts\golf\Boot.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\golf\Game.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\golf\Level1.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\golf\MainMenu.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Scripts\golf\Preloader.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Scripts\jasmine-html.js" />
     <Content Include="Scripts\jasmine.css" />
     <Content Include="Scripts\jasmine.js" />
